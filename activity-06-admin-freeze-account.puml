@@ -1,135 +1,45 @@
 @startuml
-title Activity 06 - Admin Freeze Account
+title Activity 06 - Admin Freeze Account (governance control style)
 start
 |OpsConsole|
-:1. Freeze intake capture;
+:Submit freeze request and reason code;
 |CoreAPI|
-:2. Freeze intake validate;
-|CaseMgr|
-:3. Freeze intake enrich;
-|NotifySvc|
-:4. Freeze intake execute;
-|OpsConsole|
-:5. Authorization check capture;
-|CoreAPI|
-:6. Authorization check validate;
-|CaseMgr|
-:7. Authorization check enrich;
-|NotifySvc|
-:8. Authorization check execute;
-if (Authorization check gate passed?) then (yes)
-  :Continue authorization check;
+:Validate administrator role and permissions;
+if (Authorized?) then (yes)
+  :Fetch ACCOUNT state;
 else (no)
-  :Create exception and rework task;
+  :Reject request and log security event;
   stop
 endif
-|OpsConsole|
-:9. Account state review capture;
-|CoreAPI|
-:10. Account state review validate;
 |CaseMgr|
-:11. Account state review enrich;
-|NotifySvc|
-:12. Account state review execute;
-|OpsConsole|
-:13. Case linkage capture;
-|CoreAPI|
-:14. Case linkage validate;
-|CaseMgr|
-:15. Case linkage enrich;
-|NotifySvc|
-:16. Case linkage execute;
-if (Case linkage gate passed?) then (yes)
-  :Continue case linkage;
-else (no)
-  :Create exception and rework task;
+:Link freeze action to active case;
+if (Account already frozen?) then (yes)
+  :Return idempotent success;
   stop
+else (no)
+  :Continue freeze workflow;
 endif
-|OpsConsole|
-:17. Policy evaluation capture;
 |CoreAPI|
-:18. Policy evaluation validate;
-|CaseMgr|
-:19. Policy evaluation enrich;
-|NotifySvc|
-:20. Policy evaluation execute;
+:Apply ACCOUNT status=FROZEN;
+|CoreAPI|
+:Revoke active AUTH_SESSION tokens;
 fork
 |CoreAPI|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|CaseMgr|
-:Send downstream integration message;
-:Record delivery/ack status;
+:Block payments/cards/withdrawals;
 fork again
 |NotifySvc|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
+:Send customer and branch notifications;
+fork again
+|CaseMgr|
+:Set review checkpoint and owner;
 end fork
-|OpsConsole|
-:21. Restriction execution capture;
-|CoreAPI|
-:22. Restriction execution validate;
-|CaseMgr|
-:23. Restriction execution enrich;
-|NotifySvc|
-:24. Restriction execution execute;
-if (Restriction execution gate passed?) then (yes)
-  :Continue restriction execution;
+if (High-risk customer segment?) then (yes)
+  |OpsConsole|
+  :Escalate to senior fraud officer;
 else (no)
-  :Create exception and rework task;
-  stop
+  :Keep normal review cadence;
 endif
-|OpsConsole|
-:25. Session invalidation capture;
-|CoreAPI|
-:26. Session invalidation validate;
-|CaseMgr|
-:27. Session invalidation enrich;
-|NotifySvc|
-:28. Session invalidation execute;
-|OpsConsole|
-:29. Stakeholder notification capture;
-|CoreAPI|
-:30. Stakeholder notification validate;
-|CaseMgr|
-:31. Stakeholder notification enrich;
-|NotifySvc|
-:32. Stakeholder notification execute;
-if (Stakeholder notification gate passed?) then (yes)
-  :Continue stakeholder notification;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|OpsConsole|
-:33. Review scheduling capture;
-|CoreAPI|
-:34. Review scheduling validate;
-|CaseMgr|
-:35. Review scheduling enrich;
-|NotifySvc|
-:36. Review scheduling execute;
-fork
-|CoreAPI|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|CaseMgr|
-:Send downstream integration message;
-:Record delivery/ack status;
-fork again
-|NotifySvc|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
-end fork
-|OpsConsole|
-:37. Audit finalization capture;
-|CoreAPI|
-:38. Audit finalization validate;
-|CaseMgr|
-:39. Audit finalization enrich;
-|NotifySvc|
-:40. Audit finalization execute;
+|AuditSvc|
+:Write immutable freeze audit record;
 stop
 @enduml

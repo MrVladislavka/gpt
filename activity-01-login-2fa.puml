@@ -1,135 +1,52 @@
 @startuml
-title Activity 01 - Login and 2FA
+title Activity 01 - Login and 2FA (risk-based authentication style)
 start
 |CustomerApp|
-:1. Credential intake capture;
+:Open login page;
+:Enter username/password;
 |AuthAPI|
-:2. Credential intake validate;
-|NotificationService|
-:3. Credential intake enrich;
-|FraudEngine|
-:4. Credential intake execute;
-|CustomerApp|
-:5. Primary authentication capture;
-|AuthAPI|
-:6. Primary authentication validate;
-|NotificationService|
-:7. Primary authentication enrich;
-|FraudEngine|
-:8. Primary authentication execute;
-if (Primary authentication gate passed?) then (yes)
-  :Continue primary authentication;
+:Validate credentials;
+if (Credentials valid?) then (yes)
+  :Create AUTH_SESSION;
 else (no)
-  :Create exception and rework task;
+  :Show invalid credential error;
   stop
 endif
-|CustomerApp|
-:9. Challenge orchestration capture;
 |AuthAPI|
-:10. Challenge orchestration validate;
-|NotificationService|
-:11. Challenge orchestration enrich;
-|FraudEngine|
-:12. Challenge orchestration execute;
-|CustomerApp|
-:13. OTP verification capture;
-|AuthAPI|
-:14. OTP verification validate;
-|NotificationService|
-:15. OTP verification enrich;
-|FraudEngine|
-:16. OTP verification execute;
-if (OTP verification gate passed?) then (yes)
-  :Continue otp verification;
+:Evaluate device trust and geolocation;
+if (Trusted device?) then (yes)
+  :Require OTP only;
 else (no)
-  :Create exception and rework task;
-  stop
+  :Require OTP + device challenge;
 endif
-|CustomerApp|
-:17. Session establishment capture;
-|AuthAPI|
-:18. Session establishment validate;
 |NotificationService|
-:19. Session establishment enrich;
-|FraudEngine|
-:20. Session establishment execute;
+:Send OTP/Push challenge;
+|CustomerApp|
+:Submit challenge response;
+|AuthAPI|
+:Verify OTP_CHALLENGE;
+if (Challenge passed?) then (yes)
+  :Issue access token;
+else (no)
+  :Increment failed attempts;
+  if (Max attempts reached?) then (yes)
+    :Lock AUTH_SESSION;
+    stop
+  else (no)
+    :Prompt retry;
+  endif
+endif
 fork
-|AuthAPI|
-:Persist operational state update;
-:Publish domain event;
+|FraudEngine|
+:Score login risk and update profile;
 fork again
 |NotificationService|
-:Send downstream integration message;
-:Record delivery/ack status;
+:Send login-success alert;
 fork again
-|FraudEngine|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
+|AuthAPI|
+:Load ACCOUNT snapshot;
 end fork
 |CustomerApp|
-:21. Device trust evaluation capture;
-|AuthAPI|
-:22. Device trust evaluation validate;
-|NotificationService|
-:23. Device trust evaluation enrich;
-|FraudEngine|
-:24. Device trust evaluation execute;
-if (Device trust evaluation gate passed?) then (yes)
-  :Continue device trust evaluation;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:25. Risk scoring capture;
-|AuthAPI|
-:26. Risk scoring validate;
-|NotificationService|
-:27. Risk scoring enrich;
-|FraudEngine|
-:28. Risk scoring execute;
-|CustomerApp|
-:29. Policy enforcement capture;
-|AuthAPI|
-:30. Policy enforcement validate;
-|NotificationService|
-:31. Policy enforcement enrich;
-|FraudEngine|
-:32. Policy enforcement execute;
-if (Policy enforcement gate passed?) then (yes)
-  :Continue policy enforcement;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:33. Post-login initialization capture;
-|AuthAPI|
-:34. Post-login initialization validate;
-|NotificationService|
-:35. Post-login initialization enrich;
-|FraudEngine|
-:36. Post-login initialization execute;
-fork
-|AuthAPI|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|NotificationService|
-:Send downstream integration message;
-:Record delivery/ack status;
-fork again
-|FraudEngine|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
-end fork
-|CustomerApp|
-:37. Session closure controls capture;
-|AuthAPI|
-:38. Session closure controls validate;
-|NotificationService|
-:39. Session closure controls enrich;
-|FraudEngine|
-:40. Session closure controls execute;
+:Render dashboard;
 stop
 @enduml

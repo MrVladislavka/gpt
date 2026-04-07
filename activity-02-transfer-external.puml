@@ -1,135 +1,44 @@
 @startuml
-title Activity 02 - External Transfer
+title Activity 02 - External Transfer (network settlement style)
 start
 |CustomerApp|
-:1. Transfer request intake capture;
+:Initiate external transfer;
+:Select ACCOUNT and BENEFICIARY;
 |TPS|
-:2. Transfer request intake validate;
-|Gateway|
-:3. Transfer request intake enrich;
+:Validate limits, balance, and cut-off;
 |Compliance|
-:4. Transfer request intake execute;
-|CustomerApp|
-:5. Beneficiary validation capture;
-|TPS|
-:6. Beneficiary validation validate;
-|Gateway|
-:7. Beneficiary validation enrich;
-|Compliance|
-:8. Beneficiary validation execute;
-if (Beneficiary validation gate passed?) then (yes)
-  :Continue beneficiary validation;
+:Run AML/sanctions screen;
+if (Cleared?) then (yes)
+  :Approve instruction;
 else (no)
-  :Create exception and rework task;
+  :Create compliance hold;
   stop
 endif
-|CustomerApp|
-:9. Funding checks capture;
 |TPS|
-:10. Funding checks validate;
+:Create TRANSFER and reserve funds;
 |Gateway|
-:11. Funding checks enrich;
-|Compliance|
-:12. Funding checks execute;
-|CustomerApp|
-:13. Compliance screening capture;
-|TPS|
-:14. Compliance screening validate;
-|Gateway|
-:15. Compliance screening enrich;
-|Compliance|
-:16. Compliance screening execute;
-if (Compliance screening gate passed?) then (yes)
-  :Continue compliance screening;
+:Submit payment instruction;
+repeat
+  :Poll settlement status;
+repeat while (Status pending?) is (yes)
+if (Status success?) then (yes)
+  |TPS|
+  :Post debit and fees;
 else (no)
-  :Create exception and rework task;
+  |TPS|
+  :Release reserved funds;
+  :Mark TRANSFER failed;
   stop
 endif
-|CustomerApp|
-:17. Instruction creation capture;
-|TPS|
-:18. Instruction creation validate;
-|Gateway|
-:19. Instruction creation enrich;
-|Compliance|
-:20. Instruction creation execute;
 fork
 |TPS|
-:Persist operational state update;
-:Publish domain event;
+:Publish accounting and reconciliation events;
 fork again
-|Gateway|
-:Send downstream integration message;
-:Record delivery/ack status;
+|CustomerApp|
+:Show final transfer status;
 fork again
-|Compliance|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
+|NotificationService|
+:Send transfer receipt;
 end fork
-|CustomerApp|
-:21. Network submission capture;
-|TPS|
-:22. Network submission validate;
-|Gateway|
-:23. Network submission enrich;
-|Compliance|
-:24. Network submission execute;
-if (Network submission gate passed?) then (yes)
-  :Continue network submission;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:25. Pending-state tracking capture;
-|TPS|
-:26. Pending-state tracking validate;
-|Gateway|
-:27. Pending-state tracking enrich;
-|Compliance|
-:28. Pending-state tracking execute;
-|CustomerApp|
-:29. Settlement handling capture;
-|TPS|
-:30. Settlement handling validate;
-|Gateway|
-:31. Settlement handling enrich;
-|Compliance|
-:32. Settlement handling execute;
-if (Settlement handling gate passed?) then (yes)
-  :Continue settlement handling;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:33. Customer notification capture;
-|TPS|
-:34. Customer notification validate;
-|Gateway|
-:35. Customer notification enrich;
-|Compliance|
-:36. Customer notification execute;
-fork
-|TPS|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|Gateway|
-:Send downstream integration message;
-:Record delivery/ack status;
-fork again
-|Compliance|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
-end fork
-|CustomerApp|
-:37. Reconciliation closure capture;
-|TPS|
-:38. Reconciliation closure validate;
-|Gateway|
-:39. Reconciliation closure enrich;
-|Compliance|
-:40. Reconciliation closure execute;
 stop
 @enduml

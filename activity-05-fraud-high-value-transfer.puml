@@ -1,135 +1,41 @@
 @startuml
-title Activity 05 - Fraud High Value Transfer
+title Activity 05 - Fraud High Value Transfer (incident response style)
 start
 |TxnStream|
-:1. Event intake capture;
+:Receive high-value TRANSACTION event;
 |FraudEngine|
-:2. Event intake validate;
-|CaseMgr|
-:3. Event intake enrich;
-|OpsConsole|
-:4. Event intake execute;
-|TxnStream|
-:5. Signal enrichment capture;
-|FraudEngine|
-:6. Signal enrichment validate;
-|CaseMgr|
-:7. Signal enrichment enrich;
-|OpsConsole|
-:8. Signal enrichment execute;
-if (Signal enrichment gate passed?) then (yes)
-  :Continue signal enrichment;
+:Score event using behavior model;
+if (Score above threshold?) then (yes)
+  :Trigger FRAUD_ALERT;
 else (no)
-  :Create exception and rework task;
+  :Allow normal processing;
   stop
 endif
-|TxnStream|
-:9. Risk scoring capture;
-|FraudEngine|
-:10. Risk scoring validate;
 |CaseMgr|
-:11. Risk scoring enrich;
+:Open and assign investigation case;
 |OpsConsole|
-:12. Risk scoring execute;
-|TxnStream|
-:13. Case creation capture;
-|FraudEngine|
-:14. Case creation validate;
-|CaseMgr|
-:15. Case creation enrich;
-|OpsConsole|
-:16. Case creation execute;
-if (Case creation gate passed?) then (yes)
-  :Continue case creation;
+:Review customer and transaction history;
+while (More evidence needed?) is (yes)
+  :Request additional traces/device data;
+  |FraudEngine|
+  :Recompute risk with new evidence;
+  |OpsConsole|
+endwhile (no)
+:Contact customer for verification;
+if (Customer confirms transfer?) then (yes)
+  :Disposition = legitimate;
 else (no)
-  :Create exception and rework task;
-  stop
+  :Disposition = fraud suspected;
 endif
-|TxnStream|
-:17. Analyst triage capture;
-|FraudEngine|
-:18. Analyst triage validate;
-|CaseMgr|
-:19. Analyst triage enrich;
-|OpsConsole|
-:20. Analyst triage execute;
 fork
-|FraudEngine|
-:Persist operational state update;
-:Publish domain event;
+|CoreAPI|
+:Release or block transaction;
 fork again
-|CaseMgr|
-:Send downstream integration message;
-:Record delivery/ack status;
+|NotifySvc|
+:Notify customer outcome;
 fork again
-|OpsConsole|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
+|AuditSvc|
+:Persist incident audit trail;
 end fork
-|TxnStream|
-:21. Customer verification capture;
-|FraudEngine|
-:22. Customer verification validate;
-|CaseMgr|
-:23. Customer verification enrich;
-|OpsConsole|
-:24. Customer verification execute;
-if (Customer verification gate passed?) then (yes)
-  :Continue customer verification;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|TxnStream|
-:25. Disposition decision capture;
-|FraudEngine|
-:26. Disposition decision validate;
-|CaseMgr|
-:27. Disposition decision enrich;
-|OpsConsole|
-:28. Disposition decision execute;
-|TxnStream|
-:29. Control execution capture;
-|FraudEngine|
-:30. Control execution validate;
-|CaseMgr|
-:31. Control execution enrich;
-|OpsConsole|
-:32. Control execution execute;
-if (Control execution gate passed?) then (yes)
-  :Continue control execution;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|TxnStream|
-:33. Notification dispatch capture;
-|FraudEngine|
-:34. Notification dispatch validate;
-|CaseMgr|
-:35. Notification dispatch enrich;
-|OpsConsole|
-:36. Notification dispatch execute;
-fork
-|FraudEngine|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|CaseMgr|
-:Send downstream integration message;
-:Record delivery/ack status;
-fork again
-|OpsConsole|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
-end fork
-|TxnStream|
-:37. Incident closure capture;
-|FraudEngine|
-:38. Incident closure validate;
-|CaseMgr|
-:39. Incident closure enrich;
-|OpsConsole|
-:40. Incident closure execute;
 stop
 @enduml

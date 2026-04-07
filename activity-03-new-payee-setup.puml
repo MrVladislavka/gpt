@@ -1,135 +1,47 @@
 @startuml
-title Activity 03 - New Payee Setup
+title Activity 03 - New Payee Setup (validation-first style)
 start
 |CustomerApp|
-:1. Payee capture capture;
+:Enter BENEFICIARY details;
 |PayeeAPI|
-:2. Payee capture validate;
-|Directory|
-:3. Payee capture enrich;
-|Risk|
-:4. Payee capture execute;
-|CustomerApp|
-:5. Format validation capture;
-|PayeeAPI|
-:6. Format validation validate;
-|Directory|
-:7. Format validation enrich;
-|Risk|
-:8. Format validation execute;
-if (Format validation gate passed?) then (yes)
-  :Continue format validation;
+:Normalize and validate fields;
+if (Format valid?) then (yes)
+  :Proceed with verification;
 else (no)
-  :Create exception and rework task;
+  :Return field-level errors;
   stop
 endif
-|CustomerApp|
-:9. Directory lookup capture;
-|PayeeAPI|
-:10. Directory lookup validate;
 |Directory|
-:11. Directory lookup enrich;
-|Risk|
-:12. Directory lookup execute;
-|CustomerApp|
-:13. Ownership check capture;
-|PayeeAPI|
-:14. Ownership check validate;
-|Directory|
-:15. Ownership check enrich;
-|Risk|
-:16. Ownership check execute;
-if (Ownership check gate passed?) then (yes)
-  :Continue ownership check;
+:Resolve destination bank/account metadata;
+|Validation|
+:Check ownership and account status;
+if (Ownership verified?) then (yes)
+  :Create BENEFICIARY status=PENDING;
 else (no)
-  :Create exception and rework task;
+  :Reject payee setup;
   stop
 endif
-|CustomerApp|
-:17. Risk screening capture;
-|PayeeAPI|
-:18. Risk screening validate;
-|Directory|
-:19. Risk screening enrich;
 |Risk|
-:20. Risk screening execute;
+:Evaluate risk and velocity profile;
+if (High risk?) then (yes)
+  :Route to manual review queue;
+  stop
+else (no)
+  :Start SCA challenge;
+endif
+|CustomerApp|
+:Approve SCA challenge;
+|PayeeAPI|
+:Activate BENEFICIARY status=ACTIVE;
 fork
 |PayeeAPI|
-:Persist operational state update;
-:Publish domain event;
+:Assign default transfer limits;
 fork again
-|Directory|
-:Send downstream integration message;
-:Record delivery/ack status;
+|NotificationService|
+:Send payee activation message;
 fork again
 |Risk|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
+:Write control/audit evidence;
 end fork
-|CustomerApp|
-:21. SCA challenge capture;
-|PayeeAPI|
-:22. SCA challenge validate;
-|Directory|
-:23. SCA challenge enrich;
-|Risk|
-:24. SCA challenge execute;
-if (SCA challenge gate passed?) then (yes)
-  :Continue sca challenge;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:25. Activation decision capture;
-|PayeeAPI|
-:26. Activation decision validate;
-|Directory|
-:27. Activation decision enrich;
-|Risk|
-:28. Activation decision execute;
-|CustomerApp|
-:29. Limit setup capture;
-|PayeeAPI|
-:30. Limit setup validate;
-|Directory|
-:31. Limit setup enrich;
-|Risk|
-:32. Limit setup execute;
-if (Limit setup gate passed?) then (yes)
-  :Continue limit setup;
-else (no)
-  :Create exception and rework task;
-  stop
-endif
-|CustomerApp|
-:33. Notification handling capture;
-|PayeeAPI|
-:34. Notification handling validate;
-|Directory|
-:35. Notification handling enrich;
-|Risk|
-:36. Notification handling execute;
-fork
-|PayeeAPI|
-:Persist operational state update;
-:Publish domain event;
-fork again
-|Directory|
-:Send downstream integration message;
-:Record delivery/ack status;
-fork again
-|Risk|
-:Write audit and compliance evidence;
-:Update monitoring indicators;
-end fork
-|CustomerApp|
-:37. Audit closure capture;
-|PayeeAPI|
-:38. Audit closure validate;
-|Directory|
-:39. Audit closure enrich;
-|Risk|
-:40. Audit closure execute;
 stop
 @enduml
