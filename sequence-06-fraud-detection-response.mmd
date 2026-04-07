@@ -1,0 +1,91 @@
+%% Sequence - Fraud Detection Response
+sequenceDiagram
+  autonumber
+  participant TxnStream
+  participant FraudEngine
+  participant CaseMgr
+  participant OpsConsole
+  participant CoreAPI
+  participant NotifySvc
+  participant AuditSvc
+  TxnStream->>FraudEngine: 1. Intake - capture
+  FraudEngine->>CaseMgr: 2. Intake - validate
+  CaseMgr->>OpsConsole: 3. Intake - enrich
+  OpsConsole->>CoreAPI: 4. Intake - execute
+  CoreAPI->>NotifySvc: 5. Intake - record
+  NotifySvc-->>AuditSvc: 6. Authentication - capture
+  AuditSvc->>TxnStream: 7. Authentication - validate
+  TxnStream->>FraudEngine: 8. Authentication - enrich
+  alt Gate approved
+    FraudEngine->>TxnStream: proceed
+  else Gate rejected
+    FraudEngine-->>TxnStream: rework required
+  end
+  FraudEngine->>CaseMgr: 9. Authentication - execute
+  CaseMgr->>OpsConsole: 10. Authentication - record
+  OpsConsole->>CoreAPI: 11. Validation - capture
+  CoreAPI-->>NotifySvc: 12. Validation - validate
+  loop Retry up to 3 attempts
+    CoreAPI->>NotifySvc: retry request
+  end
+  NotifySvc->>AuditSvc: 13. Validation - enrich
+  AuditSvc->>TxnStream: 14. Validation - execute
+  TxnStream->>FraudEngine: 15. Validation - record
+  FraudEngine->>CaseMgr: 16. Policy - capture
+  alt Gate approved
+    CaseMgr->>FraudEngine: proceed
+  else Gate rejected
+    CaseMgr-->>FraudEngine: rework required
+  end
+  CaseMgr->>OpsConsole: 17. Policy - validate
+  OpsConsole-->>CoreAPI: 18. Policy - enrich
+  CoreAPI->>NotifySvc: 19. Policy - execute
+  NotifySvc->>AuditSvc: 20. Policy - record
+  AuditSvc->>TxnStream: 21. Execution - capture
+  TxnStream->>FraudEngine: 22. Execution - validate
+  FraudEngine->>CaseMgr: 23. Execution - enrich
+  CaseMgr-->>OpsConsole: 24. Execution - execute
+  alt Gate approved
+    OpsConsole->>CaseMgr: proceed
+  else Gate rejected
+    OpsConsole-->>CaseMgr: rework required
+  end
+  OpsConsole->>CoreAPI: 25. Execution - record
+  CoreAPI->>NotifySvc: 26. Notification - capture
+  NotifySvc->>AuditSvc: 27. Notification - validate
+  AuditSvc->>TxnStream: 28. Notification - enrich
+  loop Retry up to 3 attempts
+    AuditSvc->>TxnStream: retry request
+  end
+  TxnStream->>FraudEngine: 29. Notification - execute
+  FraudEngine-->>CaseMgr: 30. Notification - record
+  CaseMgr->>OpsConsole: 31. Reconciliation - capture
+  OpsConsole->>CoreAPI: 32. Reconciliation - validate
+  alt Gate approved
+    CoreAPI->>OpsConsole: proceed
+  else Gate rejected
+    CoreAPI-->>OpsConsole: rework required
+  end
+  CoreAPI->>NotifySvc: 33. Reconciliation - enrich
+  NotifySvc->>AuditSvc: 34. Reconciliation - execute
+  par Notify channels
+    AuditSvc->>TxnStream: app notice
+  and
+    AuditSvc->>AuditSvc: email/SMS notice
+  end
+  AuditSvc->>TxnStream: 35. Reconciliation - record
+  TxnStream-->>FraudEngine: 36. Exception - capture
+  FraudEngine->>CaseMgr: 37. Exception - validate
+  CaseMgr->>OpsConsole: 38. Exception - enrich
+  OpsConsole->>CoreAPI: 39. Exception - execute
+  CoreAPI->>NotifySvc: 40. Exception - record
+  alt Gate approved
+    NotifySvc->>CoreAPI: proceed
+  else Gate rejected
+    NotifySvc-->>CoreAPI: rework required
+  end
+  NotifySvc->>AuditSvc: 41. Closure - capture
+  AuditSvc-->>TxnStream: 42. Closure - validate
+  TxnStream->>FraudEngine: 43. Closure - enrich
+  FraudEngine->>CaseMgr: 44. Closure - execute
+  CaseMgr->>OpsConsole: 45. Closure - record

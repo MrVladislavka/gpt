@@ -1,0 +1,82 @@
+@startuml
+title Sequence 06 - Fraud Detection Response
+autonumber
+participant "TxnStream" as TxnStream
+participant "FraudEngine" as FraudEngine
+participant "CaseMgr" as CaseMgr
+participant "OpsConsole" as OpsConsole
+participant "CoreAPI" as CoreAPI
+participant "NotifySvc" as NotifySvc
+participant "AuditSvc" as AuditSvc
+TxnStream -> FraudEngine : Intake capture
+FraudEngine -> CaseMgr : Intake validate
+CaseMgr -> OpsConsole : Intake enrich
+OpsConsole -> CoreAPI : Intake execute
+CoreAPI -> NotifySvc : Validation capture
+NotifySvc --> AuditSvc : Validation validate
+AuditSvc -> TxnStream : Validation enrich
+TxnStream -> FraudEngine : Validation execute
+alt gate approved
+  FraudEngine -> TxnStream : proceed
+else gate rejected
+  FraudEngine --> TxnStream : rework
+end
+FraudEngine -> CaseMgr : Context capture
+CaseMgr -> OpsConsole : Context validate
+OpsConsole -> CoreAPI : Context enrich
+CoreAPI --> NotifySvc : Context execute
+loop retry <= 3
+  CoreAPI -> NotifySvc : retry call
+end
+NotifySvc -> AuditSvc : Policy capture
+AuditSvc -> TxnStream : Policy validate
+TxnStream -> FraudEngine : Policy enrich
+FraudEngine -> CaseMgr : Policy execute
+alt gate approved
+  CaseMgr -> FraudEngine : proceed
+else gate rejected
+  CaseMgr --> FraudEngine : rework
+end
+CaseMgr -> OpsConsole : Decision capture
+OpsConsole --> CoreAPI : Decision validate
+CoreAPI -> NotifySvc : Decision enrich
+NotifySvc -> AuditSvc : Decision execute
+AuditSvc -> TxnStream : Execution capture
+TxnStream -> FraudEngine : Execution validate
+FraudEngine -> CaseMgr : Execution enrich
+CaseMgr --> OpsConsole : Execution execute
+alt gate approved
+  OpsConsole -> CaseMgr : proceed
+else gate rejected
+  OpsConsole --> CaseMgr : rework
+end
+OpsConsole -> CoreAPI : Notification capture
+CoreAPI -> NotifySvc : Notification validate
+NotifySvc -> AuditSvc : Notification enrich
+AuditSvc -> TxnStream : Notification execute
+loop retry <= 3
+  AuditSvc -> TxnStream : retry call
+end
+TxnStream -> FraudEngine : Reconciliation capture
+FraudEngine --> CaseMgr : Reconciliation validate
+CaseMgr -> OpsConsole : Reconciliation enrich
+OpsConsole -> CoreAPI : Reconciliation execute
+alt gate approved
+  CoreAPI -> OpsConsole : proceed
+else gate rejected
+  CoreAPI --> OpsConsole : rework
+end
+CoreAPI -> NotifySvc : Exception capture
+NotifySvc -> AuditSvc : Exception validate
+par notify channels
+  AuditSvc -> TxnStream : app notification
+else
+  AuditSvc -> AuditSvc : email/sms
+end
+AuditSvc -> TxnStream : Exception enrich
+TxnStream --> FraudEngine : Exception execute
+FraudEngine -> CaseMgr : Closure capture
+CaseMgr -> OpsConsole : Closure validate
+OpsConsole -> CoreAPI : Closure enrich
+CoreAPI -> NotifySvc : Closure execute
+@enduml

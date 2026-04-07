@@ -1,0 +1,81 @@
+@startuml
+title Sequence 03 - Payee Validation
+autonumber
+participant "CustomerApp" as CustomerApp
+participant "PayeeAPI" as PayeeAPI
+participant "Validation" as Validation
+participant "Directory" as Directory
+participant "Risk" as Risk
+participant "NotifySvc" as NotifySvc
+CustomerApp -> PayeeAPI : Intake capture
+PayeeAPI -> Validation : Intake validate
+Validation -> Directory : Intake enrich
+Directory -> Risk : Intake execute
+Risk -> NotifySvc : Validation capture
+NotifySvc --> CustomerApp : Validation validate
+CustomerApp -> PayeeAPI : Validation enrich
+PayeeAPI -> Validation : Validation execute
+alt gate approved
+  Validation -> PayeeAPI : proceed
+else gate rejected
+  Validation --> PayeeAPI : rework
+end
+Validation -> Directory : Context capture
+Directory -> Risk : Context validate
+Risk -> NotifySvc : Context enrich
+NotifySvc --> CustomerApp : Context execute
+loop retry <= 3
+  NotifySvc -> CustomerApp : retry call
+end
+CustomerApp -> PayeeAPI : Policy capture
+PayeeAPI -> Validation : Policy validate
+Validation -> Directory : Policy enrich
+Directory -> Risk : Policy execute
+alt gate approved
+  Risk -> Directory : proceed
+else gate rejected
+  Risk --> Directory : rework
+end
+Risk -> NotifySvc : Decision capture
+NotifySvc --> CustomerApp : Decision validate
+CustomerApp -> PayeeAPI : Decision enrich
+PayeeAPI -> Validation : Decision execute
+Validation -> Directory : Execution capture
+Directory -> Risk : Execution validate
+Risk -> NotifySvc : Execution enrich
+NotifySvc --> CustomerApp : Execution execute
+alt gate approved
+  CustomerApp -> NotifySvc : proceed
+else gate rejected
+  CustomerApp --> NotifySvc : rework
+end
+CustomerApp -> PayeeAPI : Notification capture
+PayeeAPI -> Validation : Notification validate
+Validation -> Directory : Notification enrich
+Directory -> Risk : Notification execute
+loop retry <= 3
+  Directory -> Risk : retry call
+end
+Risk -> NotifySvc : Reconciliation capture
+NotifySvc --> CustomerApp : Reconciliation validate
+CustomerApp -> PayeeAPI : Reconciliation enrich
+PayeeAPI -> Validation : Reconciliation execute
+alt gate approved
+  Validation -> PayeeAPI : proceed
+else gate rejected
+  Validation --> PayeeAPI : rework
+end
+Validation -> Directory : Exception capture
+Directory -> Risk : Exception validate
+par notify channels
+  Risk -> CustomerApp : app notification
+else
+  Risk -> NotifySvc : email/sms
+end
+Risk -> NotifySvc : Exception enrich
+NotifySvc --> CustomerApp : Exception execute
+CustomerApp -> PayeeAPI : Closure capture
+PayeeAPI -> Validation : Closure validate
+Validation -> Directory : Closure enrich
+Directory -> Risk : Closure execute
+@enduml

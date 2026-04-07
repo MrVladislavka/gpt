@@ -1,0 +1,135 @@
+@startuml
+title Activity 04 - Loan Application
+start
+|ApplicantPortal|
+:1. Application intake capture;
+|LoanAPI|
+:2. Application intake validate;
+|CreditBureau|
+:3. Application intake enrich;
+|Underwriting|
+:4. Application intake execute;
+|ApplicantPortal|
+:5. KYC and docs check capture;
+|LoanAPI|
+:6. KYC and docs check validate;
+|CreditBureau|
+:7. KYC and docs check enrich;
+|Underwriting|
+:8. KYC and docs check execute;
+if (KYC and docs check gate passed?) then (yes)
+  :Continue kyc and docs check;
+else (no)
+  :Create exception and rework task;
+  stop
+endif
+|ApplicantPortal|
+:9. Financial analysis capture;
+|LoanAPI|
+:10. Financial analysis validate;
+|CreditBureau|
+:11. Financial analysis enrich;
+|Underwriting|
+:12. Financial analysis execute;
+|ApplicantPortal|
+:13. Credit retrieval capture;
+|LoanAPI|
+:14. Credit retrieval validate;
+|CreditBureau|
+:15. Credit retrieval enrich;
+|Underwriting|
+:16. Credit retrieval execute;
+if (Credit retrieval gate passed?) then (yes)
+  :Continue credit retrieval;
+else (no)
+  :Create exception and rework task;
+  stop
+endif
+|ApplicantPortal|
+:17. Pre-screen policy capture;
+|LoanAPI|
+:18. Pre-screen policy validate;
+|CreditBureau|
+:19. Pre-screen policy enrich;
+|Underwriting|
+:20. Pre-screen policy execute;
+fork
+|LoanAPI|
+:Persist operational state update;
+:Publish domain event;
+fork again
+|CreditBureau|
+:Send downstream integration message;
+:Record delivery/ack status;
+fork again
+|Underwriting|
+:Write audit and compliance evidence;
+:Update monitoring indicators;
+end fork
+|ApplicantPortal|
+:21. Underwriting review capture;
+|LoanAPI|
+:22. Underwriting review validate;
+|CreditBureau|
+:23. Underwriting review enrich;
+|Underwriting|
+:24. Underwriting review execute;
+if (Underwriting review gate passed?) then (yes)
+  :Continue underwriting review;
+else (no)
+  :Create exception and rework task;
+  stop
+endif
+|ApplicantPortal|
+:25. Offer generation capture;
+|LoanAPI|
+:26. Offer generation validate;
+|CreditBureau|
+:27. Offer generation enrich;
+|Underwriting|
+:28. Offer generation execute;
+|ApplicantPortal|
+:29. Acceptance handling capture;
+|LoanAPI|
+:30. Acceptance handling validate;
+|CreditBureau|
+:31. Acceptance handling enrich;
+|Underwriting|
+:32. Acceptance handling execute;
+if (Acceptance handling gate passed?) then (yes)
+  :Continue acceptance handling;
+else (no)
+  :Create exception and rework task;
+  stop
+endif
+|ApplicantPortal|
+:33. Booking preparation capture;
+|LoanAPI|
+:34. Booking preparation validate;
+|CreditBureau|
+:35. Booking preparation enrich;
+|Underwriting|
+:36. Booking preparation execute;
+fork
+|LoanAPI|
+:Persist operational state update;
+:Publish domain event;
+fork again
+|CreditBureau|
+:Send downstream integration message;
+:Record delivery/ack status;
+fork again
+|Underwriting|
+:Write audit and compliance evidence;
+:Update monitoring indicators;
+end fork
+|ApplicantPortal|
+:37. Post-booking controls capture;
+|LoanAPI|
+:38. Post-booking controls validate;
+|CreditBureau|
+:39. Post-booking controls enrich;
+|Underwriting|
+:40. Post-booking controls execute;
+stop
+@enduml

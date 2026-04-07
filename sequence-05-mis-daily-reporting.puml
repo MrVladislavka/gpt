@@ -1,0 +1,81 @@
+@startuml
+title Sequence 05 - MIS Daily Reporting
+autonumber
+participant "Scheduler" as Scheduler
+participant "MIS" as MIS
+participant "CoreAPI" as CoreAPI
+participant "Warehouse" as Warehouse
+participant "ReportEngine" as ReportEngine
+participant "Distribution" as Distribution
+Scheduler -> MIS : Intake capture
+MIS -> CoreAPI : Intake validate
+CoreAPI -> Warehouse : Intake enrich
+Warehouse -> ReportEngine : Intake execute
+ReportEngine -> Distribution : Validation capture
+Distribution --> Scheduler : Validation validate
+Scheduler -> MIS : Validation enrich
+MIS -> CoreAPI : Validation execute
+alt gate approved
+  CoreAPI -> MIS : proceed
+else gate rejected
+  CoreAPI --> MIS : rework
+end
+CoreAPI -> Warehouse : Context capture
+Warehouse -> ReportEngine : Context validate
+ReportEngine -> Distribution : Context enrich
+Distribution --> Scheduler : Context execute
+loop retry <= 3
+  Distribution -> Scheduler : retry call
+end
+Scheduler -> MIS : Policy capture
+MIS -> CoreAPI : Policy validate
+CoreAPI -> Warehouse : Policy enrich
+Warehouse -> ReportEngine : Policy execute
+alt gate approved
+  ReportEngine -> Warehouse : proceed
+else gate rejected
+  ReportEngine --> Warehouse : rework
+end
+ReportEngine -> Distribution : Decision capture
+Distribution --> Scheduler : Decision validate
+Scheduler -> MIS : Decision enrich
+MIS -> CoreAPI : Decision execute
+CoreAPI -> Warehouse : Execution capture
+Warehouse -> ReportEngine : Execution validate
+ReportEngine -> Distribution : Execution enrich
+Distribution --> Scheduler : Execution execute
+alt gate approved
+  Scheduler -> Distribution : proceed
+else gate rejected
+  Scheduler --> Distribution : rework
+end
+Scheduler -> MIS : Notification capture
+MIS -> CoreAPI : Notification validate
+CoreAPI -> Warehouse : Notification enrich
+Warehouse -> ReportEngine : Notification execute
+loop retry <= 3
+  Warehouse -> ReportEngine : retry call
+end
+ReportEngine -> Distribution : Reconciliation capture
+Distribution --> Scheduler : Reconciliation validate
+Scheduler -> MIS : Reconciliation enrich
+MIS -> CoreAPI : Reconciliation execute
+alt gate approved
+  CoreAPI -> MIS : proceed
+else gate rejected
+  CoreAPI --> MIS : rework
+end
+CoreAPI -> Warehouse : Exception capture
+Warehouse -> ReportEngine : Exception validate
+par notify channels
+  ReportEngine -> Scheduler : app notification
+else
+  ReportEngine -> Distribution : email/sms
+end
+ReportEngine -> Distribution : Exception enrich
+Distribution --> Scheduler : Exception execute
+Scheduler -> MIS : Closure capture
+MIS -> CoreAPI : Closure validate
+CoreAPI -> Warehouse : Closure enrich
+Warehouse -> ReportEngine : Closure execute
+@enduml

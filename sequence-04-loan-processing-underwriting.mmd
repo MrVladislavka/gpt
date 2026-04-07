@@ -1,0 +1,91 @@
+%% Sequence - Loan Processing Underwriting
+sequenceDiagram
+  autonumber
+  participant ApplicantPortal
+  participant LoanAPI
+  participant Rules
+  participant CreditBureau
+  participant Underwriting
+  participant DocSvc
+  participant NotifySvc
+  ApplicantPortal->>LoanAPI: 1. Intake - capture
+  LoanAPI->>Rules: 2. Intake - validate
+  Rules->>CreditBureau: 3. Intake - enrich
+  CreditBureau->>Underwriting: 4. Intake - execute
+  Underwriting->>DocSvc: 5. Intake - record
+  DocSvc-->>NotifySvc: 6. Authentication - capture
+  NotifySvc->>ApplicantPortal: 7. Authentication - validate
+  ApplicantPortal->>LoanAPI: 8. Authentication - enrich
+  alt Gate approved
+    LoanAPI->>ApplicantPortal: proceed
+  else Gate rejected
+    LoanAPI-->>ApplicantPortal: rework required
+  end
+  LoanAPI->>Rules: 9. Authentication - execute
+  Rules->>CreditBureau: 10. Authentication - record
+  CreditBureau->>Underwriting: 11. Validation - capture
+  Underwriting-->>DocSvc: 12. Validation - validate
+  loop Retry up to 3 attempts
+    Underwriting->>DocSvc: retry request
+  end
+  DocSvc->>NotifySvc: 13. Validation - enrich
+  NotifySvc->>ApplicantPortal: 14. Validation - execute
+  ApplicantPortal->>LoanAPI: 15. Validation - record
+  LoanAPI->>Rules: 16. Policy - capture
+  alt Gate approved
+    Rules->>LoanAPI: proceed
+  else Gate rejected
+    Rules-->>LoanAPI: rework required
+  end
+  Rules->>CreditBureau: 17. Policy - validate
+  CreditBureau-->>Underwriting: 18. Policy - enrich
+  Underwriting->>DocSvc: 19. Policy - execute
+  DocSvc->>NotifySvc: 20. Policy - record
+  NotifySvc->>ApplicantPortal: 21. Execution - capture
+  ApplicantPortal->>LoanAPI: 22. Execution - validate
+  LoanAPI->>Rules: 23. Execution - enrich
+  Rules-->>CreditBureau: 24. Execution - execute
+  alt Gate approved
+    CreditBureau->>Rules: proceed
+  else Gate rejected
+    CreditBureau-->>Rules: rework required
+  end
+  CreditBureau->>Underwriting: 25. Execution - record
+  Underwriting->>DocSvc: 26. Notification - capture
+  DocSvc->>NotifySvc: 27. Notification - validate
+  NotifySvc->>ApplicantPortal: 28. Notification - enrich
+  loop Retry up to 3 attempts
+    NotifySvc->>ApplicantPortal: retry request
+  end
+  ApplicantPortal->>LoanAPI: 29. Notification - execute
+  LoanAPI-->>Rules: 30. Notification - record
+  Rules->>CreditBureau: 31. Reconciliation - capture
+  CreditBureau->>Underwriting: 32. Reconciliation - validate
+  alt Gate approved
+    Underwriting->>CreditBureau: proceed
+  else Gate rejected
+    Underwriting-->>CreditBureau: rework required
+  end
+  Underwriting->>DocSvc: 33. Reconciliation - enrich
+  DocSvc->>NotifySvc: 34. Reconciliation - execute
+  par Notify channels
+    NotifySvc->>ApplicantPortal: app notice
+  and
+    NotifySvc->>NotifySvc: email/SMS notice
+  end
+  NotifySvc->>ApplicantPortal: 35. Reconciliation - record
+  ApplicantPortal-->>LoanAPI: 36. Exception - capture
+  LoanAPI->>Rules: 37. Exception - validate
+  Rules->>CreditBureau: 38. Exception - enrich
+  CreditBureau->>Underwriting: 39. Exception - execute
+  Underwriting->>DocSvc: 40. Exception - record
+  alt Gate approved
+    DocSvc->>Underwriting: proceed
+  else Gate rejected
+    DocSvc-->>Underwriting: rework required
+  end
+  DocSvc->>NotifySvc: 41. Closure - capture
+  NotifySvc-->>ApplicantPortal: 42. Closure - validate
+  ApplicantPortal->>LoanAPI: 43. Closure - enrich
+  LoanAPI->>Rules: 44. Closure - execute
+  Rules->>CreditBureau: 45. Closure - record

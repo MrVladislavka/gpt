@@ -1,0 +1,91 @@
+%% Sequence - TPS External Transfer
+sequenceDiagram
+  autonumber
+  participant CustomerApp
+  participant AuthAPI
+  participant TPS
+  participant Gateway
+  participant ExtNetwork
+  participant Compliance
+  participant NotifySvc
+  CustomerApp->>AuthAPI: 1. Intake - capture
+  AuthAPI->>TPS: 2. Intake - validate
+  TPS->>Gateway: 3. Intake - enrich
+  Gateway->>ExtNetwork: 4. Intake - execute
+  ExtNetwork->>Compliance: 5. Intake - record
+  Compliance-->>NotifySvc: 6. Authentication - capture
+  NotifySvc->>CustomerApp: 7. Authentication - validate
+  CustomerApp->>AuthAPI: 8. Authentication - enrich
+  alt Gate approved
+    AuthAPI->>CustomerApp: proceed
+  else Gate rejected
+    AuthAPI-->>CustomerApp: rework required
+  end
+  AuthAPI->>TPS: 9. Authentication - execute
+  TPS->>Gateway: 10. Authentication - record
+  Gateway->>ExtNetwork: 11. Validation - capture
+  ExtNetwork-->>Compliance: 12. Validation - validate
+  loop Retry up to 3 attempts
+    ExtNetwork->>Compliance: retry request
+  end
+  Compliance->>NotifySvc: 13. Validation - enrich
+  NotifySvc->>CustomerApp: 14. Validation - execute
+  CustomerApp->>AuthAPI: 15. Validation - record
+  AuthAPI->>TPS: 16. Policy - capture
+  alt Gate approved
+    TPS->>AuthAPI: proceed
+  else Gate rejected
+    TPS-->>AuthAPI: rework required
+  end
+  TPS->>Gateway: 17. Policy - validate
+  Gateway-->>ExtNetwork: 18. Policy - enrich
+  ExtNetwork->>Compliance: 19. Policy - execute
+  Compliance->>NotifySvc: 20. Policy - record
+  NotifySvc->>CustomerApp: 21. Execution - capture
+  CustomerApp->>AuthAPI: 22. Execution - validate
+  AuthAPI->>TPS: 23. Execution - enrich
+  TPS-->>Gateway: 24. Execution - execute
+  alt Gate approved
+    Gateway->>TPS: proceed
+  else Gate rejected
+    Gateway-->>TPS: rework required
+  end
+  Gateway->>ExtNetwork: 25. Execution - record
+  ExtNetwork->>Compliance: 26. Notification - capture
+  Compliance->>NotifySvc: 27. Notification - validate
+  NotifySvc->>CustomerApp: 28. Notification - enrich
+  loop Retry up to 3 attempts
+    NotifySvc->>CustomerApp: retry request
+  end
+  CustomerApp->>AuthAPI: 29. Notification - execute
+  AuthAPI-->>TPS: 30. Notification - record
+  TPS->>Gateway: 31. Reconciliation - capture
+  Gateway->>ExtNetwork: 32. Reconciliation - validate
+  alt Gate approved
+    ExtNetwork->>Gateway: proceed
+  else Gate rejected
+    ExtNetwork-->>Gateway: rework required
+  end
+  ExtNetwork->>Compliance: 33. Reconciliation - enrich
+  Compliance->>NotifySvc: 34. Reconciliation - execute
+  par Notify channels
+    NotifySvc->>CustomerApp: app notice
+  and
+    NotifySvc->>NotifySvc: email/SMS notice
+  end
+  NotifySvc->>CustomerApp: 35. Reconciliation - record
+  CustomerApp-->>AuthAPI: 36. Exception - capture
+  AuthAPI->>TPS: 37. Exception - validate
+  TPS->>Gateway: 38. Exception - enrich
+  Gateway->>ExtNetwork: 39. Exception - execute
+  ExtNetwork->>Compliance: 40. Exception - record
+  alt Gate approved
+    Compliance->>ExtNetwork: proceed
+  else Gate rejected
+    Compliance-->>ExtNetwork: rework required
+  end
+  Compliance->>NotifySvc: 41. Closure - capture
+  NotifySvc-->>CustomerApp: 42. Closure - validate
+  CustomerApp->>AuthAPI: 43. Closure - enrich
+  AuthAPI->>TPS: 44. Closure - execute
+  TPS->>Gateway: 45. Closure - record
