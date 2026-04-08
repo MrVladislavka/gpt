@@ -1,53 +1,18 @@
 %% Collaboration 03: Payee Validation
 flowchart LR
-  CustomerApp["CustomerApp"]
-  PayeeAPI["PayeeAPI"]
-  Validation["Validation"]
-  Directory["Directory"]
-  Risk["Risk"]
-  NotifySvc["NotifySvc"]
-  CustomerApp -- "1. Intake capture" --> Validation
-  PayeeAPI -- "2. Intake validate" --> Directory
-  Validation -- "3. Intake enrich" --> Risk
-  Directory -- "4. Intake execute" --> NotifySvc
-  Risk -- "5. Intake record" --> CustomerApp
-  NotifySvc -- "6. Authentication capture" --> PayeeAPI
-  CustomerApp -- "7. Authentication validate" --> Validation
-  PayeeAPI -- "8. Authentication enrich" --> Directory
-  Validation -- "9. Authentication execute" --> Risk
-  Directory -- "10. Authentication record" --> NotifySvc
-  Risk -- "11. Validation capture" --> CustomerApp
-  NotifySvc -- "12. Validation validate" --> PayeeAPI
-  CustomerApp -- "13. Validation enrich" --> Validation
-  PayeeAPI -- "14. Validation execute" --> Directory
-  Validation -- "15. Validation record" --> Risk
-  Directory -- "16. Policy capture" --> NotifySvc
-  Risk -- "17. Policy validate" --> CustomerApp
-  NotifySvc -- "18. Policy enrich" --> PayeeAPI
-  CustomerApp -- "19. Policy execute" --> Validation
-  PayeeAPI -- "20. Policy record" --> Directory
-  Validation -- "21. Execution capture" --> Risk
-  Directory -- "22. Execution validate" --> NotifySvc
-  Risk -- "23. Execution enrich" --> CustomerApp
-  NotifySvc -- "24. Execution execute" --> PayeeAPI
-  CustomerApp -- "25. Execution record" --> Validation
-  PayeeAPI -- "26. Notification capture" --> Directory
-  Validation -- "27. Notification validate" --> Risk
-  Directory -- "28. Notification enrich" --> NotifySvc
-  Risk -- "29. Notification execute" --> CustomerApp
-  NotifySvc -- "30. Notification record" --> PayeeAPI
-  CustomerApp -- "31. Reconciliation capture" --> Validation
-  PayeeAPI -- "32. Reconciliation validate" --> Directory
-  Validation -- "33. Reconciliation enrich" --> Risk
-  Directory -- "34. Reconciliation execute" --> NotifySvc
-  Risk -- "35. Reconciliation record" --> CustomerApp
-  NotifySvc -- "36. Exception capture" --> PayeeAPI
-  CustomerApp -- "37. Exception validate" --> Validation
-  PayeeAPI -- "38. Exception enrich" --> Directory
-  Validation -- "39. Exception execute" --> Risk
-  Directory -- "40. Exception record" --> NotifySvc
-  Risk -- "41. Closure capture" --> CustomerApp
-  NotifySvc -- "42. Closure validate" --> PayeeAPI
-  CustomerApp -- "43. Closure enrich" --> Validation
-  PayeeAPI -- "44. Closure execute" --> Directory
-  Validation -- "45. Closure record" --> Risk
+  CustomerApp["Customer App"]
+  PayeeAPI["Payee API"]
+  Validation["Validation Service"]
+  Directory["Bank Directory"]
+  Risk["Risk Engine"]
+  NotifySvc["Notification Service"]
+
+  CustomerApp -->|create payee request| PayeeAPI
+  PayeeAPI -->|lookup bank/account metadata| Directory
+  Directory -->|directory details| PayeeAPI
+  PayeeAPI -->|ownership and format checks| Validation
+  Validation -->|validation outcome| PayeeAPI
+  PayeeAPI -->|risk and sanctions check| Risk
+  Risk -->|risk decision| PayeeAPI
+  PayeeAPI -->|payee activation event| NotifySvc
+  NotifySvc -.->|activation confirmation| CustomerApp

@@ -1,53 +1,17 @@
 %% Collaboration 01: TPS Internal Transfer
 flowchart LR
-  CustomerApp["CustomerApp"]
-  AuthAPI["AuthAPI"]
-  TPS["TPS"]
-  AccountSvc["AccountSvc"]
-  LedgerSvc["LedgerSvc"]
-  NotifySvc["NotifySvc"]
-  CustomerApp -- "1. Intake capture" --> TPS
-  AuthAPI -- "2. Intake validate" --> AccountSvc
-  TPS -- "3. Intake enrich" --> LedgerSvc
-  AccountSvc -- "4. Intake execute" --> NotifySvc
-  LedgerSvc -- "5. Intake record" --> CustomerApp
-  NotifySvc -- "6. Authentication capture" --> AuthAPI
-  CustomerApp -- "7. Authentication validate" --> TPS
-  AuthAPI -- "8. Authentication enrich" --> AccountSvc
-  TPS -- "9. Authentication execute" --> LedgerSvc
-  AccountSvc -- "10. Authentication record" --> NotifySvc
-  LedgerSvc -- "11. Validation capture" --> CustomerApp
-  NotifySvc -- "12. Validation validate" --> AuthAPI
-  CustomerApp -- "13. Validation enrich" --> TPS
-  AuthAPI -- "14. Validation execute" --> AccountSvc
-  TPS -- "15. Validation record" --> LedgerSvc
-  AccountSvc -- "16. Policy capture" --> NotifySvc
-  LedgerSvc -- "17. Policy validate" --> CustomerApp
-  NotifySvc -- "18. Policy enrich" --> AuthAPI
-  CustomerApp -- "19. Policy execute" --> TPS
-  AuthAPI -- "20. Policy record" --> AccountSvc
-  TPS -- "21. Execution capture" --> LedgerSvc
-  AccountSvc -- "22. Execution validate" --> NotifySvc
-  LedgerSvc -- "23. Execution enrich" --> CustomerApp
-  NotifySvc -- "24. Execution execute" --> AuthAPI
-  CustomerApp -- "25. Execution record" --> TPS
-  AuthAPI -- "26. Notification capture" --> AccountSvc
-  TPS -- "27. Notification validate" --> LedgerSvc
-  AccountSvc -- "28. Notification enrich" --> NotifySvc
-  LedgerSvc -- "29. Notification execute" --> CustomerApp
-  NotifySvc -- "30. Notification record" --> AuthAPI
-  CustomerApp -- "31. Reconciliation capture" --> TPS
-  AuthAPI -- "32. Reconciliation validate" --> AccountSvc
-  TPS -- "33. Reconciliation enrich" --> LedgerSvc
-  AccountSvc -- "34. Reconciliation execute" --> NotifySvc
-  LedgerSvc -- "35. Reconciliation record" --> CustomerApp
-  NotifySvc -- "36. Exception capture" --> AuthAPI
-  CustomerApp -- "37. Exception validate" --> TPS
-  AuthAPI -- "38. Exception enrich" --> AccountSvc
-  TPS -- "39. Exception execute" --> LedgerSvc
-  AccountSvc -- "40. Exception record" --> NotifySvc
-  LedgerSvc -- "41. Closure capture" --> CustomerApp
-  NotifySvc -- "42. Closure validate" --> AuthAPI
-  CustomerApp -- "43. Closure enrich" --> TPS
-  AuthAPI -- "44. Closure execute" --> AccountSvc
-  TPS -- "45. Closure record" --> LedgerSvc
+  CustomerApp["Customer App"]
+  AuthAPI["Auth API"]
+  TPS["TPS Orchestrator"]
+  AccountSvc["Account Service"]
+  LedgerSvc["Ledger Service"]
+  NotifySvc["Notification Service"]
+
+  CustomerApp -->|submit internal transfer| AuthAPI
+  AuthAPI -->|forward authenticated request| TPS
+  TPS -->|validate source & destination accounts| AccountSvc
+  AccountSvc -->|account validation result| TPS
+  TPS -->|post debit/credit entries| LedgerSvc
+  LedgerSvc -->|posting confirmation| TPS
+  TPS -->|publish completion event| NotifySvc
+  NotifySvc -.->|delivery status| CustomerApp
