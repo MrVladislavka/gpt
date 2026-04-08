@@ -235,3 +235,86 @@ The UML artifacts collectively provide a multi-view system model for online bank
 7. Pressman, R. S., & Maxim, B. R. (2019). *Software Engineering: A Practitioner’s Approach* (9th ed.). McGraw-Hill.
 8. Dennis, A., Wixom, B. H., & Tegarden, D. (2015). *Systems Analysis and Design: An Object-Oriented Approach with UML* (5th ed.). Wiley.
 9. Schaum’s Outlines. (various editions). *UML* / *Systems Analysis and Design* (descriptor-style worked tables and exercises).
+
+---
+
+## 10. UI Design Support Narrative (for Report Integration)
+
+This section provides the explanatory text that supports the six UI pages in the report and links them directly to the UML artifacts.
+
+### 10.1 Design objective
+The UI layer is designed to operationalize the same use cases represented in the UML models. Each page maps to a primary use case and corresponding activity/sequence behavior. The design priorities are:
+- **Security with usability** (especially for login, transfer, and admin actions),
+- **Error prevention before irreversible actions**,
+- **Clear system feedback and recoverability**,
+- **Consistency of layout and interaction patterns** across all pages.
+
+### 10.2 Mapping UI pages to UML use cases
+
+1. **Login UI** → UC-01 Login with 2FA  
+   Supports credential entry, MFA challenge, lockout/retry messaging, and session feedback.
+
+2. **Bank Transfer UI** → UC-02 External Transfer  
+   Supports account selection, beneficiary selection, amount/fee review, risk/limit validation, and confirmation.
+
+3. **Mobile Vertical Dashboard/App** → post-auth customer operations (UC-01, UC-02, UC-03 linkage)  
+   Supports quick navigation to balance, recent activity, transfer, and support pathways.
+
+4. **Customer Support UI** → issue resolution and escalation extension use cases  
+   Supports search-first help, ticket creation, chat/status tracking, and SLA visibility.
+
+5. **Bank Admin Dashboard UI** → UC-06 Admin Freeze + fraud operations linkage  
+   Supports high-risk queue review, freeze/unfreeze actions, and audit-oriented operational control.
+
+6. **Loan Application UI** → UC-04 Loan Application  
+   Supports staged form progression, document upload, eligibility preview, and submit/save draft outcomes.
+
+### 10.3 Nielsen heuristic application by page
+
+#### A. Login UI
+- **Visibility of system status**: OTP sent timer, login security status, last-login context.
+- **Error prevention**: password masking controls, field validation, attempt handling.
+- **User control and freedom**: show/hide password, forgot-password recovery path.
+
+#### B. Bank Transfer UI
+- **Match with real world**: familiar banking terms (from account, beneficiary, amount, fee, ETA).
+- **Error prevention**: pre-confirmation validation banner for limits/risk checks.
+- **Recognition over recall**: account and beneficiary selectors reduce memory load.
+
+#### C. Mobile Dashboard UI
+- **Aesthetic/minimalist design**: prominent balance card + concise action shortcuts.
+- **Visibility of status**: security status card and recent transactions.
+- **Flexibility and efficiency**: one-tap access to common tasks.
+
+#### D. Customer Support UI
+- **Help and documentation**: search box and category entry points.
+- **Visibility of status**: ticket timeline, ownership, and ETA indicators.
+- **Error recovery**: clear issue description fields and escalation path.
+
+#### E. Bank Admin Dashboard UI
+- **Visibility of system status**: KPI tiles (alerts, frozen accounts, pending reviews).
+- **Consistency and standards**: action center aligns with queue details.
+- **Error prevention**: explicit freeze/unfreeze controls tied to case context.
+
+#### F. Loan Application UI
+- **Recognition rather than recall**: guided stepper and structured form grouping.
+- **Error prevention**: document checklists and validation-friendly field grouping.
+- **User control**: save draft in addition to submit.
+
+### 10.4 UI quality controls used in the design set
+- **Primary CTA hierarchy** (single dominant action per major step),
+- **Secondary safety actions** (cancel/save draft/back),
+- **Inline validation placement** near relevant fields,
+- **Status messaging components** (warning/info/success cards),
+- **Form chunking** to reduce cognitive load,
+- **Accessible color contrast strategy** (dark text on light surfaces, high-emphasis CTA contrast),
+- **Consistent spacing and card/grid rhythm** for learnability.
+
+### 10.5 How UI design stays consistent with technical UML models
+- **Use-case consistency**: each UI corresponds to a modeled use case and scenario.
+- **Activity consistency**: decision points in activity diagrams map to visible UI states (e.g., validation banner, pending settlement, decline/approval message).
+- **Sequence consistency**: backend steps that cause user-facing effects (notifications, delays, approvals) are surfaced as explicit status and feedback components.
+- **Data consistency**: fields displayed in UI correspond to ERD/class entities (Account, Beneficiary, Transfer, LoanApplication, Notification, FraudAlert).
+
+### 10.6 Suggested paragraph for report body
+The six UI pages were intentionally designed as front-end realizations of the UML behavioral models rather than standalone mockups. Each interface maps to a defined use case and exposes the key decision and status transitions present in activity and sequence diagrams. Nielsen’s heuristics guided the interaction decisions to balance banking-grade control requirements with user comprehension and task efficiency. As a result, the UI artifacts are traceable to model semantics and suitable for design-to-engineering handoff.
