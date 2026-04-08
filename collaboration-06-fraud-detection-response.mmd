@@ -1,19 +1,21 @@
-%% Collaboration 06: Fraud Detection Response
+%% Collaboration 06 Fraud Detection Response
 flowchart LR
-  TxnStream["Transaction Stream"]
-  FraudEngine["Fraud Engine"]
-  CaseMgr["Case Management"]
-  OpsConsole["Operations Console"]
-  CoreAPI["Core Banking API"]
-  NotifySvc["Notification Service"]
-  AuditSvc["Audit Service"]
-
-  TxnStream -->|high-value transaction event| FraudEngine
-  FraudEngine -->|open suspicious case| CaseMgr
-  CaseMgr -->|assign investigation task| OpsConsole
-  OpsConsole -->|investigation disposition| CaseMgr
-  CaseMgr -->|block/release command| CoreAPI
-  CoreAPI -->|execution result| CaseMgr
-  CaseMgr -->|customer outcome event| NotifySvc
-  NotifySvc -.->|customer alert| OpsConsole
-  CaseMgr -->|forensic evidence and timeline| AuditSvc
+  TxnStream["TxnStream"]
+  FraudEngine["FraudEngine"]
+  CaseMgr["CaseMgr"]
+  OpsConsole["OpsConsole"]
+  CoreAPI["CoreAPI"]
+  NotifySvc["NotifySvc"]
+  AuditSvc["AuditSvc"]
+  TxnStream -->|"Intake capture\nValidation execute\nPolicy enrich\nExecution validate\nReconciliation capture\nException execute"| FraudEngine
+  FraudEngine -->|"Intake validate\nContext capture\nPolicy execute\nExecution enrich\nReconciliation validate\nClosure capture"| CaseMgr
+  CaseMgr -->|"Intake enrich\nContext validate\nDecision capture\nExecution execute\nReconciliation enrich\nClosure validate"| OpsConsole
+  OpsConsole -->|"Intake execute\nContext enrich\nDecision validate\nNotification capture\nReconciliation execute\nClosure enrich"| CoreAPI
+  CoreAPI -->|"Validation capture\nContext execute\nretry call\nDecision enrich\nNotification validate\nException capture\nClosure execute"| NotifySvc
+  NotifySvc -->|"Validation validate\nPolicy capture\nDecision execute\nNotification enrich\nException validate"| AuditSvc
+  AuditSvc -->|"Validation enrich\nPolicy validate\nExecution capture\nNotification execute\nretry call\napp notification\nException enrich"| TxnStream
+  FraudEngine -->|"proceed\nrework"| TxnStream
+  CaseMgr -->|"proceed\nrework"| FraudEngine
+  OpsConsole -->|"proceed\nrework"| CaseMgr
+  CoreAPI -->|"proceed\nrework"| OpsConsole
+  AuditSvc -->|"email/sms"| AuditSvc

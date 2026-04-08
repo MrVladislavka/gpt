@@ -1,16 +1,18 @@
-%% Collaboration 05: MIS Daily Reporting
+%% Collaboration 05 Mis Daily Reporting
 flowchart LR
   Scheduler["Scheduler"]
-  MIS["MIS Service"]
-  CoreAPI["Core Banking API"]
-  Warehouse["Data Warehouse"]
-  ReportEngine["Report Engine"]
-  Distribution["Distribution Service"]
-
-  Scheduler -->|trigger daily MIS job| MIS
-  MIS -->|extract operational data| CoreAPI
-  CoreAPI -->|transaction/account dataset| MIS
-  MIS -->|load normalized dataset| Warehouse
-  Warehouse -->|curated reporting data| ReportEngine
-  ReportEngine -->|generate MIS report pack| Distribution
-  Distribution -.->|publish reports to recipients| MIS
+  MIS["MIS"]
+  CoreAPI["CoreAPI"]
+  Warehouse["Warehouse"]
+  ReportEngine["ReportEngine"]
+  Distribution["Distribution"]
+  Scheduler -->|"Intake capture\nValidation enrich\nPolicy capture\nDecision enrich\nNotification capture\nReconciliation enrich\nClosure capture"| MIS
+  MIS -->|"Intake validate\nValidation execute\nPolicy validate\nDecision execute\nNotification validate\nReconciliation execute\nClosure validate"| CoreAPI
+  CoreAPI -->|"Intake enrich\nContext capture\nPolicy enrich\nExecution capture\nNotification enrich\nException capture\nClosure enrich"| Warehouse
+  Warehouse -->|"Intake execute\nContext validate\nPolicy execute\nExecution validate\nNotification execute\nretry call\nException validate\nClosure execute"| ReportEngine
+  ReportEngine -->|"Validation capture\nContext enrich\nDecision capture\nExecution enrich\nReconciliation capture\nemail/sms\nException enrich"| Distribution
+  Distribution -->|"Validation validate\nContext execute\nretry call\nDecision validate\nExecution execute\nReconciliation validate\nException execute"| Scheduler
+  CoreAPI -->|"proceed\nrework\nproceed\nrework"| MIS
+  ReportEngine -->|"proceed\nrework"| Warehouse
+  Scheduler -->|"proceed\nrework"| Distribution
+  ReportEngine -->|"app notification"| Scheduler

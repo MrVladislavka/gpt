@@ -1,21 +1,21 @@
-%% Collaboration 04: Loan Processing Underwriting
+%% Collaboration 04 Loan Processing Underwriting
 flowchart LR
-  ApplicantPortal["Applicant Portal"]
-  LoanAPI["Loan API"]
-  Rules["Rules Engine"]
-  CreditBureau["Credit Bureau"]
-  Underwriting["Underwriting Workbench"]
-  DocSvc["Document Service"]
-  NotifySvc["Notification Service"]
-
-  ApplicantPortal -->|submit loan application| LoanAPI
-  LoanAPI -->|store application documents| DocSvc
-  DocSvc -->|document ingest status| LoanAPI
-  LoanAPI -->|pull bureau report| CreditBureau
-  CreditBureau -->|credit report and score| LoanAPI
-  LoanAPI -->|evaluate policy thresholds| Rules
-  Rules -->|eligibility recommendation| LoanAPI
-  LoanAPI -->|route case for review| Underwriting
-  Underwriting -->|underwriting decision| LoanAPI
-  LoanAPI -->|send decision outcome| NotifySvc
-  NotifySvc -.->|decision notification| ApplicantPortal
+  ApplicantPortal["ApplicantPortal"]
+  LoanAPI["LoanAPI"]
+  Rules["Rules"]
+  CreditBureau["CreditBureau"]
+  Underwriting["Underwriting"]
+  DocSvc["DocSvc"]
+  NotifySvc["NotifySvc"]
+  ApplicantPortal -->|"Intake capture\nValidation execute\nPolicy enrich\nExecution validate\nReconciliation capture\nException execute"| LoanAPI
+  LoanAPI -->|"Intake validate\nContext capture\nPolicy execute\nExecution enrich\nReconciliation validate\nClosure capture"| Rules
+  Rules -->|"Intake enrich\nContext validate\nDecision capture\nExecution execute\nReconciliation enrich\nClosure validate"| CreditBureau
+  CreditBureau -->|"Intake execute\nContext enrich\nDecision validate\nNotification capture\nReconciliation execute\nClosure enrich"| Underwriting
+  Underwriting -->|"Validation capture\nContext execute\nretry call\nDecision enrich\nNotification validate\nException capture\nClosure execute"| DocSvc
+  DocSvc -->|"Validation validate\nPolicy capture\nDecision execute\nNotification enrich\nException validate"| NotifySvc
+  NotifySvc -->|"Validation enrich\nPolicy validate\nExecution capture\nNotification execute\nretry call\napp notification\nException enrich"| ApplicantPortal
+  LoanAPI -->|"proceed\nrework"| ApplicantPortal
+  Rules -->|"proceed\nrework"| LoanAPI
+  CreditBureau -->|"proceed\nrework"| Rules
+  Underwriting -->|"proceed\nrework"| CreditBureau
+  NotifySvc -->|"email/sms"| NotifySvc

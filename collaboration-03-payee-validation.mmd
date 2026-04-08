@@ -1,18 +1,18 @@
-%% Collaboration 03: Payee Validation
+%% Collaboration 03 Payee Validation
 flowchart LR
-  CustomerApp["Customer App"]
-  PayeeAPI["Payee API"]
-  Validation["Validation Service"]
-  Directory["Bank Directory"]
-  Risk["Risk Engine"]
-  NotifySvc["Notification Service"]
-
-  CustomerApp -->|create payee request| PayeeAPI
-  PayeeAPI -->|lookup bank/account metadata| Directory
-  Directory -->|directory details| PayeeAPI
-  PayeeAPI -->|ownership and format checks| Validation
-  Validation -->|validation outcome| PayeeAPI
-  PayeeAPI -->|risk and sanctions check| Risk
-  Risk -->|risk decision| PayeeAPI
-  PayeeAPI -->|payee activation event| NotifySvc
-  NotifySvc -.->|activation confirmation| CustomerApp
+  CustomerApp["CustomerApp"]
+  PayeeAPI["PayeeAPI"]
+  Validation["Validation"]
+  Directory["Directory"]
+  Risk["Risk"]
+  NotifySvc["NotifySvc"]
+  CustomerApp -->|"Intake capture\nValidation enrich\nPolicy capture\nDecision enrich\nNotification capture\nReconciliation enrich\nClosure capture"| PayeeAPI
+  PayeeAPI -->|"Intake validate\nValidation execute\nPolicy validate\nDecision execute\nNotification validate\nReconciliation execute\nClosure validate"| Validation
+  Validation -->|"Intake enrich\nContext capture\nPolicy enrich\nExecution capture\nNotification enrich\nException capture\nClosure enrich"| Directory
+  Directory -->|"Intake execute\nContext validate\nPolicy execute\nExecution validate\nNotification execute\nretry call\nException validate\nClosure execute"| Risk
+  Risk -->|"Validation capture\nContext enrich\nDecision capture\nExecution enrich\nReconciliation capture\nemail/sms\nException enrich"| NotifySvc
+  NotifySvc -->|"Validation validate\nContext execute\nretry call\nDecision validate\nExecution execute\nReconciliation validate\nException execute"| CustomerApp
+  Validation -->|"proceed\nrework\nproceed\nrework"| PayeeAPI
+  Risk -->|"proceed\nrework"| Directory
+  CustomerApp -->|"proceed\nrework"| NotifySvc
+  Risk -->|"app notification"| CustomerApp
