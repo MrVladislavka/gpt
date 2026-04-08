@@ -1,0 +1,320 @@
+%% Activity 01: Login and 2FA
+flowchart LR
+  classDef lifeline fill:#f8f9fa,stroke:#555,stroke-width:1px;
+  classDef pin fill:#fff,stroke:#000,stroke-width:1px,font-size:10px;
+  classDef action fill:#e8f0fe,stroke:#1a73e8,stroke-width:1px;
+  Start((Start))
+  End((End))
+  subgraph Customer["Customer Lifeline"]
+    direction TB
+    Customer_L["Customer timeline"]
+    P1i(["in: request_payload_1"])
+    A1["1. Intake capture"]
+    P1o(["out: validated_request_1"])
+    P1i --> A1 --> P1o
+    class P1i,P1o pin;
+    class A1 action;
+    P5i(["in: identity_inputs_5"])
+    A5["5. Verification capture"]
+    P5o(["out: verification_result_5"])
+    P5i --> A5 --> P5o
+    class P5i,P5o pin;
+    class A5 action;
+    P9i(["in: customer_context_key_9"])
+    A9["9. ContextLoad capture"]
+    P9o(["out: context_snapshot_9"])
+    P9i --> A9 --> P9o
+    class P9i,P9o pin;
+    class A9 action;
+    P13i(["in: policy_context_13"])
+    A13["13. PolicyCheck capture"]
+    P13o(["out: policy_decision_13"])
+    P13i --> A13 --> P13o
+    class P13i,P13o pin;
+    class A13 action;
+    P17i(["in: decision_inputs_17"])
+    A17["17. Decision capture"]
+    P17o(["out: decision_outcome_17"])
+    P17i --> A17 --> P17o
+    class P17i,P17o pin;
+    class A17 action;
+    P21i(["in: approved_instruction_21"])
+    A21["21. Execution capture"]
+    P21o(["out: execution_result_21"])
+    P21i --> A21 --> P21o
+    class P21i,P21o pin;
+    class A21 action;
+    P25i(["in: event_payload_25"])
+    A25["25. Notification capture"]
+    P25o(["out: delivery_status_25"])
+    P25i --> A25 --> P25o
+    class P25i,P25o pin;
+    class A25 action;
+    P29i(["in: posting_records_29"])
+    A29["29. Reconciliation capture"]
+    P29o(["out: recon_status_29"])
+    P29i --> A29 --> P29o
+    class P29i,P29o pin;
+    class A29 action;
+    P33i(["in: error_event_33"])
+    A33["33. ExceptionHandling capture"]
+    P33o(["out: resolution_record_33"])
+    P33i --> A33 --> P33o
+    class P33i,P33o pin;
+    class A33 action;
+    P37i(["in: session_state_37"])
+    A37["37. Closure capture"]
+    P37o(["out: audit_close_record_37"])
+    P37i --> A37 --> P37o
+    class P37i,P37o pin;
+    class A37 action;
+  end
+  subgraph IdentityService["IdentityService Lifeline"]
+    direction TB
+    IdentityService_L["IdentityService timeline"]
+    P2i(["in: request_payload_2"])
+    A2["2. Intake validate"]
+    P2o(["out: validated_request_2"])
+    P2i --> A2 --> P2o
+    class P2i,P2o pin;
+    class A2 action;
+    P6i(["in: identity_inputs_6"])
+    A6["6. Verification validate"]
+    P6o(["out: verification_result_6"])
+    P6i --> A6 --> P6o
+    class P6i,P6o pin;
+    class A6 action;
+    P10i(["in: customer_context_key_10"])
+    A10["10. ContextLoad validate"]
+    P10o(["out: context_snapshot_10"])
+    P10i --> A10 --> P10o
+    class P10i,P10o pin;
+    class A10 action;
+    P14i(["in: policy_context_14"])
+    A14["14. PolicyCheck validate"]
+    P14o(["out: policy_decision_14"])
+    P14i --> A14 --> P14o
+    class P14i,P14o pin;
+    class A14 action;
+    P18i(["in: decision_inputs_18"])
+    A18["18. Decision validate"]
+    P18o(["out: decision_outcome_18"])
+    P18i --> A18 --> P18o
+    class P18i,P18o pin;
+    class A18 action;
+    P22i(["in: approved_instruction_22"])
+    A22["22. Execution validate"]
+    P22o(["out: execution_result_22"])
+    P22i --> A22 --> P22o
+    class P22i,P22o pin;
+    class A22 action;
+    P26i(["in: event_payload_26"])
+    A26["26. Notification validate"]
+    P26o(["out: delivery_status_26"])
+    P26i --> A26 --> P26o
+    class P26i,P26o pin;
+    class A26 action;
+    P30i(["in: posting_records_30"])
+    A30["30. Reconciliation validate"]
+    P30o(["out: recon_status_30"])
+    P30i --> A30 --> P30o
+    class P30i,P30o pin;
+    class A30 action;
+    P34i(["in: error_event_34"])
+    A34["34. ExceptionHandling validate"]
+    P34o(["out: resolution_record_34"])
+    P34i --> A34 --> P34o
+    class P34i,P34o pin;
+    class A34 action;
+    P38i(["in: session_state_38"])
+    A38["38. Closure validate"]
+    P38o(["out: audit_close_record_38"])
+    P38i --> A38 --> P38o
+    class P38i,P38o pin;
+    class A38 action;
+  end
+  subgraph NotificationService["NotificationService Lifeline"]
+    direction TB
+    NotificationService_L["NotificationService timeline"]
+    P3i(["in: request_payload_3"])
+    A3["3. Intake enrich"]
+    P3o(["out: validated_request_3"])
+    P3i --> A3 --> P3o
+    class P3i,P3o pin;
+    class A3 action;
+    P7i(["in: identity_inputs_7"])
+    A7["7. Verification enrich"]
+    P7o(["out: verification_result_7"])
+    P7i --> A7 --> P7o
+    class P7i,P7o pin;
+    class A7 action;
+    P11i(["in: customer_context_key_11"])
+    A11["11. ContextLoad enrich"]
+    P11o(["out: context_snapshot_11"])
+    P11i --> A11 --> P11o
+    class P11i,P11o pin;
+    class A11 action;
+    P15i(["in: policy_context_15"])
+    A15["15. PolicyCheck enrich"]
+    P15o(["out: policy_decision_15"])
+    P15i --> A15 --> P15o
+    class P15i,P15o pin;
+    class A15 action;
+    P19i(["in: decision_inputs_19"])
+    A19["19. Decision enrich"]
+    P19o(["out: decision_outcome_19"])
+    P19i --> A19 --> P19o
+    class P19i,P19o pin;
+    class A19 action;
+    P23i(["in: approved_instruction_23"])
+    A23["23. Execution enrich"]
+    P23o(["out: execution_result_23"])
+    P23i --> A23 --> P23o
+    class P23i,P23o pin;
+    class A23 action;
+    P27i(["in: event_payload_27"])
+    A27["27. Notification enrich"]
+    P27o(["out: delivery_status_27"])
+    P27i --> A27 --> P27o
+    class P27i,P27o pin;
+    class A27 action;
+    P31i(["in: posting_records_31"])
+    A31["31. Reconciliation enrich"]
+    P31o(["out: recon_status_31"])
+    P31i --> A31 --> P31o
+    class P31i,P31o pin;
+    class A31 action;
+    P35i(["in: error_event_35"])
+    A35["35. ExceptionHandling enrich"]
+    P35o(["out: resolution_record_35"])
+    P35i --> A35 --> P35o
+    class P35i,P35o pin;
+    class A35 action;
+    P39i(["in: session_state_39"])
+    A39["39. Closure enrich"]
+    P39o(["out: audit_close_record_39"])
+    P39i --> A39 --> P39o
+    class P39i,P39o pin;
+    class A39 action;
+  end
+  subgraph RiskAudit["RiskAudit Lifeline"]
+    direction TB
+    RiskAudit_L["RiskAudit timeline"]
+    P4i(["in: request_payload_4"])
+    A4["4. Intake execute"]
+    P4o(["out: validated_request_4"])
+    P4i --> A4 --> P4o
+    class P4i,P4o pin;
+    class A4 action;
+    P8i(["in: identity_inputs_8"])
+    A8["8. Verification execute"]
+    P8o(["out: verification_result_8"])
+    P8i --> A8 --> P8o
+    class P8i,P8o pin;
+    class A8 action;
+    P12i(["in: customer_context_key_12"])
+    A12["12. ContextLoad execute"]
+    P12o(["out: context_snapshot_12"])
+    P12i --> A12 --> P12o
+    class P12i,P12o pin;
+    class A12 action;
+    P16i(["in: policy_context_16"])
+    A16["16. PolicyCheck execute"]
+    P16o(["out: policy_decision_16"])
+    P16i --> A16 --> P16o
+    class P16i,P16o pin;
+    class A16 action;
+    P20i(["in: decision_inputs_20"])
+    A20["20. Decision execute"]
+    P20o(["out: decision_outcome_20"])
+    P20i --> A20 --> P20o
+    class P20i,P20o pin;
+    class A20 action;
+    P24i(["in: approved_instruction_24"])
+    A24["24. Execution execute"]
+    P24o(["out: execution_result_24"])
+    P24i --> A24 --> P24o
+    class P24i,P24o pin;
+    class A24 action;
+    P28i(["in: event_payload_28"])
+    A28["28. Notification execute"]
+    P28o(["out: delivery_status_28"])
+    P28i --> A28 --> P28o
+    class P28i,P28o pin;
+    class A28 action;
+    P32i(["in: posting_records_32"])
+    A32["32. Reconciliation execute"]
+    P32o(["out: recon_status_32"])
+    P32i --> A32 --> P32o
+    class P32i,P32o pin;
+    class A32 action;
+    P36i(["in: error_event_36"])
+    A36["36. ExceptionHandling execute"]
+    P36o(["out: resolution_record_36"])
+    P36i --> A36 --> P36o
+    class P36i,P36o pin;
+    class A36 action;
+    P40i(["in: session_state_40"])
+    A40["40. Closure execute"]
+    P40o(["out: audit_close_record_40"])
+    P40i --> A40 --> P40o
+    class P40i,P40o pin;
+    class A40 action;
+  end
+  Start --> P1i
+  P1o --> P2i
+  P2o --> P3i
+  P3o --> P4i
+  P4o --> P5i
+  P5o --> P6i
+  P6o --> P7i
+  P7o --> P8i
+  P8o --> P9i
+  G8{"Gate 1: pass?"}
+  P8o --> G8
+  G8 -- yes --> P9i
+  G8 -- no --> R8["rework packet"] --> P7i
+  P9o --> P10i
+  P10o --> P11i
+  P11o --> P12i
+  P12o --> P13i
+  P13o --> P14i
+  P14o --> P15i
+  P15o --> P16i
+  P16o --> P17i
+  G16{"Gate 2: pass?"}
+  P16o --> G16
+  G16 -- yes --> P17i
+  G16 -- no --> R16["rework packet"] --> P15i
+  P17o --> P18i
+  P18o --> P19i
+  P19o --> P20i
+  P20o --> P21i
+  P21o --> P22i
+  P22o --> P23i
+  P23o --> P24i
+  P24o --> P25i
+  G24{"Gate 3: pass?"}
+  P24o --> G24
+  G24 -- yes --> P25i
+  G24 -- no --> R24["rework packet"] --> P23i
+  P25o --> P26i
+  P26o --> P27i
+  P27o --> P28i
+  P28o --> P29i
+  P29o --> P30i
+  P30o --> P31i
+  P31o --> P32i
+  P32o --> P33i
+  G32{"Gate 4: pass?"}
+  P32o --> G32
+  G32 -- yes --> P33i
+  G32 -- no --> R32["rework packet"] --> P31i
+  P33o --> P34i
+  P34o --> P35i
+  P35o --> P36i
+  P36o --> P37i
+  P37o --> P38i
+  P38o --> P39i
+  P39o --> P40i
+  P40o --> End

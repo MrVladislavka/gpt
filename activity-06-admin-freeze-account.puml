@@ -1,0 +1,139 @@
+@startuml
+title Activity 06 - Admin Freeze Account
+start
+|OpsConsole|
+:1. Freeze request intake - capture input context;
+|CoreAPI|
+:2. Freeze request intake - validate business constraints;
+|CaseMgr|
+:3. Freeze request intake - enrich with related records;
+|NotifySvc|
+:4. Freeze request intake - execute core action;
+|OpsConsole|
+:5. Freeze request intake - record outcome and metrics;
+|CoreAPI|
+:6. Authority verification - capture input context;
+|CaseMgr|
+:7. Authority verification - validate business constraints;
+|NotifySvc|
+:8. Authority verification - enrich with related records;
+|OpsConsole|
+:9. Authority verification - execute core action;
+|CoreAPI|
+:10. Authority verification - record outcome and metrics;
+if (Authority verification gate passed?) then (yes)
+  :Continue after authority verification;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CaseMgr|
+:11. Account state analysis - capture input context;
+|NotifySvc|
+:12. Account state analysis - validate business constraints;
+|OpsConsole|
+:13. Account state analysis - enrich with related records;
+|CoreAPI|
+:14. Account state analysis - execute core action;
+|CaseMgr|
+:15. Account state analysis - record outcome and metrics;
+|NotifySvc|
+:16. Case linking - capture input context;
+|OpsConsole|
+:17. Case linking - validate business constraints;
+|CoreAPI|
+:18. Case linking - enrich with related records;
+|CaseMgr|
+:19. Case linking - execute core action;
+|NotifySvc|
+:20. Case linking - record outcome and metrics;
+fork
+|CoreAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|CaseMgr|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|NotifySvc|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|OpsConsole|
+:21. Policy decision - capture input context;
+|CoreAPI|
+:22. Policy decision - validate business constraints;
+|CaseMgr|
+:23. Policy decision - enrich with related records;
+|NotifySvc|
+:24. Policy decision - execute core action;
+|OpsConsole|
+:25. Policy decision - record outcome and metrics;
+if (Policy decision gate passed?) then (yes)
+  :Continue after policy decision;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CoreAPI|
+:26. Restriction execution - capture input context;
+|CaseMgr|
+:27. Restriction execution - validate business constraints;
+|NotifySvc|
+:28. Restriction execution - enrich with related records;
+|OpsConsole|
+:29. Restriction execution - execute core action;
+|CoreAPI|
+:30. Restriction execution - record outcome and metrics;
+|CaseMgr|
+:31. Session revocation - capture input context;
+|NotifySvc|
+:32. Session revocation - validate business constraints;
+|OpsConsole|
+:33. Session revocation - enrich with related records;
+|CoreAPI|
+:34. Session revocation - execute core action;
+|CaseMgr|
+:35. Session revocation - record outcome and metrics;
+fork
+|CoreAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|CaseMgr|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|NotifySvc|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|NotifySvc|
+:36. Stakeholder communication - capture input context;
+|OpsConsole|
+:37. Stakeholder communication - validate business constraints;
+|CoreAPI|
+:38. Stakeholder communication - enrich with related records;
+|CaseMgr|
+:39. Stakeholder communication - execute core action;
+|NotifySvc|
+:40. Stakeholder communication - record outcome and metrics;
+if (Stakeholder communication gate passed?) then (yes)
+  :Continue after stakeholder communication;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|OpsConsole|
+:41. Audit closeout - capture input context;
+|CoreAPI|
+:42. Audit closeout - validate business constraints;
+|CaseMgr|
+:43. Audit closeout - enrich with related records;
+|NotifySvc|
+:44. Audit closeout - execute core action;
+|OpsConsole|
+:45. Audit closeout - record outcome and metrics;
+stop
+@enduml

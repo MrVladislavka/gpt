@@ -1,0 +1,139 @@
+@startuml
+title Activity 04 - Loan Application
+start
+|ApplicantPortal|
+:1. Application intake - capture input context;
+|LoanAPI|
+:2. Application intake - validate business constraints;
+|CreditBureau|
+:3. Application intake - enrich with related records;
+|Underwriting|
+:4. Application intake - execute core action;
+|ApplicantPortal|
+:5. Application intake - record outcome and metrics;
+|LoanAPI|
+:6. KYC and document checks - capture input context;
+|CreditBureau|
+:7. KYC and document checks - validate business constraints;
+|Underwriting|
+:8. KYC and document checks - enrich with related records;
+|ApplicantPortal|
+:9. KYC and document checks - execute core action;
+|LoanAPI|
+:10. KYC and document checks - record outcome and metrics;
+if (KYC and document checks gate passed?) then (yes)
+  :Continue after kyc and document checks;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CreditBureau|
+:11. Financial profile build - capture input context;
+|Underwriting|
+:12. Financial profile build - validate business constraints;
+|ApplicantPortal|
+:13. Financial profile build - enrich with related records;
+|LoanAPI|
+:14. Financial profile build - execute core action;
+|CreditBureau|
+:15. Financial profile build - record outcome and metrics;
+|Underwriting|
+:16. Credit retrieval - capture input context;
+|ApplicantPortal|
+:17. Credit retrieval - validate business constraints;
+|LoanAPI|
+:18. Credit retrieval - enrich with related records;
+|CreditBureau|
+:19. Credit retrieval - execute core action;
+|Underwriting|
+:20. Credit retrieval - record outcome and metrics;
+fork
+|LoanAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|CreditBureau|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|Underwriting|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|ApplicantPortal|
+:21. Eligibility policy gate - capture input context;
+|LoanAPI|
+:22. Eligibility policy gate - validate business constraints;
+|CreditBureau|
+:23. Eligibility policy gate - enrich with related records;
+|Underwriting|
+:24. Eligibility policy gate - execute core action;
+|ApplicantPortal|
+:25. Eligibility policy gate - record outcome and metrics;
+if (Eligibility policy gate gate passed?) then (yes)
+  :Continue after eligibility policy gate;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|LoanAPI|
+:26. Underwriter assessment - capture input context;
+|CreditBureau|
+:27. Underwriter assessment - validate business constraints;
+|Underwriting|
+:28. Underwriter assessment - enrich with related records;
+|ApplicantPortal|
+:29. Underwriter assessment - execute core action;
+|LoanAPI|
+:30. Underwriter assessment - record outcome and metrics;
+|CreditBureau|
+:31. Offer preparation - capture input context;
+|Underwriting|
+:32. Offer preparation - validate business constraints;
+|ApplicantPortal|
+:33. Offer preparation - enrich with related records;
+|LoanAPI|
+:34. Offer preparation - execute core action;
+|CreditBureau|
+:35. Offer preparation - record outcome and metrics;
+fork
+|LoanAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|CreditBureau|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|Underwriting|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|Underwriting|
+:36. Acceptance and booking - capture input context;
+|ApplicantPortal|
+:37. Acceptance and booking - validate business constraints;
+|LoanAPI|
+:38. Acceptance and booking - enrich with related records;
+|CreditBureau|
+:39. Acceptance and booking - execute core action;
+|Underwriting|
+:40. Acceptance and booking - record outcome and metrics;
+if (Acceptance and booking gate passed?) then (yes)
+  :Continue after acceptance and booking;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|ApplicantPortal|
+:41. Post-booking controls - capture input context;
+|LoanAPI|
+:42. Post-booking controls - validate business constraints;
+|CreditBureau|
+:43. Post-booking controls - enrich with related records;
+|Underwriting|
+:44. Post-booking controls - execute core action;
+|ApplicantPortal|
+:45. Post-booking controls - record outcome and metrics;
+stop
+@enduml

@@ -1,0 +1,54 @@
+%% Collaboration 02: TPS External Transfer
+flowchart LR
+  CustomerApp["CustomerApp"]
+  AuthAPI["AuthAPI"]
+  TPS["TPS"]
+  Gateway["Gateway"]
+  ExtNetwork["ExtNetwork"]
+  Compliance["Compliance"]
+  NotifySvc["NotifySvc"]
+  CustomerApp -- "1. Intake capture" --> TPS
+  AuthAPI -- "2. Intake validate" --> Gateway
+  TPS -- "3. Intake enrich" --> ExtNetwork
+  Gateway -- "4. Intake execute" --> Compliance
+  ExtNetwork -- "5. Intake record" --> NotifySvc
+  Compliance -- "6. Authentication capture" --> CustomerApp
+  NotifySvc -- "7. Authentication validate" --> AuthAPI
+  CustomerApp -- "8. Authentication enrich" --> TPS
+  AuthAPI -- "9. Authentication execute" --> Gateway
+  TPS -- "10. Authentication record" --> ExtNetwork
+  Gateway -- "11. Validation capture" --> Compliance
+  ExtNetwork -- "12. Validation validate" --> NotifySvc
+  Compliance -- "13. Validation enrich" --> CustomerApp
+  NotifySvc -- "14. Validation execute" --> AuthAPI
+  CustomerApp -- "15. Validation record" --> TPS
+  AuthAPI -- "16. Policy capture" --> Gateway
+  TPS -- "17. Policy validate" --> ExtNetwork
+  Gateway -- "18. Policy enrich" --> Compliance
+  ExtNetwork -- "19. Policy execute" --> NotifySvc
+  Compliance -- "20. Policy record" --> CustomerApp
+  NotifySvc -- "21. Execution capture" --> AuthAPI
+  CustomerApp -- "22. Execution validate" --> TPS
+  AuthAPI -- "23. Execution enrich" --> Gateway
+  TPS -- "24. Execution execute" --> ExtNetwork
+  Gateway -- "25. Execution record" --> Compliance
+  ExtNetwork -- "26. Notification capture" --> NotifySvc
+  Compliance -- "27. Notification validate" --> CustomerApp
+  NotifySvc -- "28. Notification enrich" --> AuthAPI
+  CustomerApp -- "29. Notification execute" --> TPS
+  AuthAPI -- "30. Notification record" --> Gateway
+  TPS -- "31. Reconciliation capture" --> ExtNetwork
+  Gateway -- "32. Reconciliation validate" --> Compliance
+  ExtNetwork -- "33. Reconciliation enrich" --> NotifySvc
+  Compliance -- "34. Reconciliation execute" --> CustomerApp
+  NotifySvc -- "35. Reconciliation record" --> AuthAPI
+  CustomerApp -- "36. Exception capture" --> TPS
+  AuthAPI -- "37. Exception validate" --> Gateway
+  TPS -- "38. Exception enrich" --> ExtNetwork
+  Gateway -- "39. Exception execute" --> Compliance
+  ExtNetwork -- "40. Exception record" --> NotifySvc
+  Compliance -- "41. Closure capture" --> CustomerApp
+  NotifySvc -- "42. Closure validate" --> AuthAPI
+  CustomerApp -- "43. Closure enrich" --> TPS
+  AuthAPI -- "44. Closure execute" --> Gateway
+  TPS -- "45. Closure record" --> ExtNetwork

@@ -1,0 +1,54 @@
+%% Collaboration 04: Loan Processing Underwriting
+flowchart LR
+  ApplicantPortal["ApplicantPortal"]
+  LoanAPI["LoanAPI"]
+  Rules["Rules"]
+  CreditBureau["CreditBureau"]
+  Underwriting["Underwriting"]
+  DocSvc["DocSvc"]
+  NotifySvc["NotifySvc"]
+  ApplicantPortal -- "1. Intake capture" --> Rules
+  LoanAPI -- "2. Intake validate" --> CreditBureau
+  Rules -- "3. Intake enrich" --> Underwriting
+  CreditBureau -- "4. Intake execute" --> DocSvc
+  Underwriting -- "5. Intake record" --> NotifySvc
+  DocSvc -- "6. Authentication capture" --> ApplicantPortal
+  NotifySvc -- "7. Authentication validate" --> LoanAPI
+  ApplicantPortal -- "8. Authentication enrich" --> Rules
+  LoanAPI -- "9. Authentication execute" --> CreditBureau
+  Rules -- "10. Authentication record" --> Underwriting
+  CreditBureau -- "11. Validation capture" --> DocSvc
+  Underwriting -- "12. Validation validate" --> NotifySvc
+  DocSvc -- "13. Validation enrich" --> ApplicantPortal
+  NotifySvc -- "14. Validation execute" --> LoanAPI
+  ApplicantPortal -- "15. Validation record" --> Rules
+  LoanAPI -- "16. Policy capture" --> CreditBureau
+  Rules -- "17. Policy validate" --> Underwriting
+  CreditBureau -- "18. Policy enrich" --> DocSvc
+  Underwriting -- "19. Policy execute" --> NotifySvc
+  DocSvc -- "20. Policy record" --> ApplicantPortal
+  NotifySvc -- "21. Execution capture" --> LoanAPI
+  ApplicantPortal -- "22. Execution validate" --> Rules
+  LoanAPI -- "23. Execution enrich" --> CreditBureau
+  Rules -- "24. Execution execute" --> Underwriting
+  CreditBureau -- "25. Execution record" --> DocSvc
+  Underwriting -- "26. Notification capture" --> NotifySvc
+  DocSvc -- "27. Notification validate" --> ApplicantPortal
+  NotifySvc -- "28. Notification enrich" --> LoanAPI
+  ApplicantPortal -- "29. Notification execute" --> Rules
+  LoanAPI -- "30. Notification record" --> CreditBureau
+  Rules -- "31. Reconciliation capture" --> Underwriting
+  CreditBureau -- "32. Reconciliation validate" --> DocSvc
+  Underwriting -- "33. Reconciliation enrich" --> NotifySvc
+  DocSvc -- "34. Reconciliation execute" --> ApplicantPortal
+  NotifySvc -- "35. Reconciliation record" --> LoanAPI
+  ApplicantPortal -- "36. Exception capture" --> Rules
+  LoanAPI -- "37. Exception validate" --> CreditBureau
+  Rules -- "38. Exception enrich" --> Underwriting
+  CreditBureau -- "39. Exception execute" --> DocSvc
+  Underwriting -- "40. Exception record" --> NotifySvc
+  DocSvc -- "41. Closure capture" --> ApplicantPortal
+  NotifySvc -- "42. Closure validate" --> LoanAPI
+  ApplicantPortal -- "43. Closure enrich" --> Rules
+  LoanAPI -- "44. Closure execute" --> CreditBureau
+  Rules -- "45. Closure record" --> Underwriting

@@ -1,0 +1,142 @@
+@startuml
+title Activity 02 - External Transfer
+start
+|CustomerApp|
+:1. Transfer request capture - capture input context;
+|TPS|
+:2. Transfer request capture - validate business constraints;
+|Gateway|
+:3. Transfer request capture - enrich with related records;
+|Compliance|
+:4. Transfer request capture - execute core action;
+|CustomerApp|
+:5. Transfer request capture - record outcome and metrics;
+|TPS|
+:6. Beneficiary checks - capture input context;
+|Gateway|
+:7. Beneficiary checks - validate business constraints;
+|Compliance|
+:8. Beneficiary checks - enrich with related records;
+|CustomerApp|
+:9. Beneficiary checks - execute core action;
+|TPS|
+:10. Beneficiary checks - record outcome and metrics;
+if (Beneficiary checks gate passed?) then (yes)
+  :Continue after beneficiary checks;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|Gateway|
+:11. Funding controls - capture input context;
+|Compliance|
+:12. Funding controls - validate business constraints;
+|CustomerApp|
+:13. Funding controls - enrich with related records;
+|TPS|
+:14. Funding controls - execute core action;
+|Gateway|
+:15. Funding controls - record outcome and metrics;
+|Compliance|
+:16. Compliance controls - capture input context;
+|CustomerApp|
+:17. Compliance controls - validate business constraints;
+|TPS|
+:18. Compliance controls - enrich with related records;
+|Gateway|
+:19. Compliance controls - execute core action;
+|Compliance|
+:20. Compliance controls - record outcome and metrics;
+fork
+|TPS|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|Gateway|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|Compliance|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|CustomerApp|
+:21. Instruction packaging - capture input context;
+|TPS|
+:22. Instruction packaging - validate business constraints;
+|Gateway|
+:23. Instruction packaging - enrich with related records;
+|Compliance|
+:24. Instruction packaging - execute core action;
+|CustomerApp|
+:25. Instruction packaging - record outcome and metrics;
+if (Instruction packaging gate passed?) then (yes)
+  :Continue after instruction packaging;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|TPS|
+:26. Network routing - capture input context;
+|Gateway|
+:27. Network routing - validate business constraints;
+|Compliance|
+:28. Network routing - enrich with related records;
+|CustomerApp|
+:29. Network routing - execute core action;
+|TPS|
+:30. Network routing - record outcome and metrics;
+|Gateway|
+:31. Settlement polling - capture input context;
+|Compliance|
+:32. Settlement polling - validate business constraints;
+|CustomerApp|
+:33. Settlement polling - enrich with related records;
+|TPS|
+:34. Settlement polling - execute core action;
+|Gateway|
+:35. Settlement polling - record outcome and metrics;
+fork
+|TPS|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|Gateway|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|Compliance|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+repeat
+:Re-query settlement status from network;
+repeat while (Settlement pending?) is (yes)
+|Compliance|
+:36. Failure compensation - capture input context;
+|CustomerApp|
+:37. Failure compensation - validate business constraints;
+|TPS|
+:38. Failure compensation - enrich with related records;
+|Gateway|
+:39. Failure compensation - execute core action;
+|Compliance|
+:40. Failure compensation - record outcome and metrics;
+if (Failure compensation gate passed?) then (yes)
+  :Continue after failure compensation;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CustomerApp|
+:41. Posting and closure - capture input context;
+|TPS|
+:42. Posting and closure - validate business constraints;
+|Gateway|
+:43. Posting and closure - enrich with related records;
+|Compliance|
+:44. Posting and closure - execute core action;
+|CustomerApp|
+:45. Posting and closure - record outcome and metrics;
+stop
+@enduml

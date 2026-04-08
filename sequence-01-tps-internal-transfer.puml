@@ -1,0 +1,81 @@
+@startuml
+title Sequence 01 - TPS Internal Transfer
+autonumber
+participant "CustomerApp" as CustomerApp
+participant "AuthAPI" as AuthAPI
+participant "TPS" as TPS
+participant "AccountSvc" as AccountSvc
+participant "LedgerSvc" as LedgerSvc
+participant "NotifySvc" as NotifySvc
+CustomerApp -> AuthAPI : Intake capture
+AuthAPI -> TPS : Intake validate
+TPS -> AccountSvc : Intake enrich
+AccountSvc -> LedgerSvc : Intake execute
+LedgerSvc -> NotifySvc : Validation capture
+NotifySvc --> CustomerApp : Validation validate
+CustomerApp -> AuthAPI : Validation enrich
+AuthAPI -> TPS : Validation execute
+alt gate approved
+  TPS -> AuthAPI : proceed
+else gate rejected
+  TPS --> AuthAPI : rework
+end
+TPS -> AccountSvc : Context capture
+AccountSvc -> LedgerSvc : Context validate
+LedgerSvc -> NotifySvc : Context enrich
+NotifySvc --> CustomerApp : Context execute
+loop retry <= 3
+  NotifySvc -> CustomerApp : retry call
+end
+CustomerApp -> AuthAPI : Policy capture
+AuthAPI -> TPS : Policy validate
+TPS -> AccountSvc : Policy enrich
+AccountSvc -> LedgerSvc : Policy execute
+alt gate approved
+  LedgerSvc -> AccountSvc : proceed
+else gate rejected
+  LedgerSvc --> AccountSvc : rework
+end
+LedgerSvc -> NotifySvc : Decision capture
+NotifySvc --> CustomerApp : Decision validate
+CustomerApp -> AuthAPI : Decision enrich
+AuthAPI -> TPS : Decision execute
+TPS -> AccountSvc : Execution capture
+AccountSvc -> LedgerSvc : Execution validate
+LedgerSvc -> NotifySvc : Execution enrich
+NotifySvc --> CustomerApp : Execution execute
+alt gate approved
+  CustomerApp -> NotifySvc : proceed
+else gate rejected
+  CustomerApp --> NotifySvc : rework
+end
+CustomerApp -> AuthAPI : Notification capture
+AuthAPI -> TPS : Notification validate
+TPS -> AccountSvc : Notification enrich
+AccountSvc -> LedgerSvc : Notification execute
+loop retry <= 3
+  AccountSvc -> LedgerSvc : retry call
+end
+LedgerSvc -> NotifySvc : Reconciliation capture
+NotifySvc --> CustomerApp : Reconciliation validate
+CustomerApp -> AuthAPI : Reconciliation enrich
+AuthAPI -> TPS : Reconciliation execute
+alt gate approved
+  TPS -> AuthAPI : proceed
+else gate rejected
+  TPS --> AuthAPI : rework
+end
+TPS -> AccountSvc : Exception capture
+AccountSvc -> LedgerSvc : Exception validate
+par notify channels
+  LedgerSvc -> CustomerApp : app notification
+else
+  LedgerSvc -> NotifySvc : email/sms
+end
+LedgerSvc -> NotifySvc : Exception enrich
+NotifySvc --> CustomerApp : Exception execute
+CustomerApp -> AuthAPI : Closure capture
+AuthAPI -> TPS : Closure validate
+TPS -> AccountSvc : Closure enrich
+AccountSvc -> LedgerSvc : Closure execute
+@enduml
