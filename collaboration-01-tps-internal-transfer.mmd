@@ -1,0 +1,18 @@
+%% Collaboration 01 Tps Internal Transfer
+flowchart LR
+  CustomerApp["CustomerApp"]
+  AuthAPI["AuthAPI"]
+  TPS["TPS"]
+  AccountSvc["AccountSvc"]
+  LedgerSvc["LedgerSvc"]
+  NotifySvc["NotifySvc"]
+  CustomerApp -->|"Intake capture\nValidation enrich\nPolicy capture\nDecision enrich\nNotification capture\nReconciliation enrich\nClosure capture"| AuthAPI
+  AuthAPI -->|"Intake validate\nValidation execute\nPolicy validate\nDecision execute\nNotification validate\nReconciliation execute\nClosure validate"| TPS
+  TPS -->|"Intake enrich\nContext capture\nPolicy enrich\nExecution capture\nNotification enrich\nException capture\nClosure enrich"| AccountSvc
+  AccountSvc -->|"Intake execute\nContext validate\nPolicy execute\nExecution validate\nNotification execute\nretry call\nException validate\nClosure execute"| LedgerSvc
+  LedgerSvc -->|"Validation capture\nContext enrich\nDecision capture\nExecution enrich\nReconciliation capture\nemail/sms\nException enrich"| NotifySvc
+  NotifySvc -->|"Validation validate\nContext execute\nretry call\nDecision validate\nExecution execute\nReconciliation validate\nException execute"| CustomerApp
+  TPS -->|"proceed\nrework\nproceed\nrework"| AuthAPI
+  LedgerSvc -->|"proceed\nrework"| AccountSvc
+  CustomerApp -->|"proceed\nrework"| NotifySvc
+  LedgerSvc -->|"app notification"| CustomerApp

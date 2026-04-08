@@ -1,0 +1,138 @@
+@startuml
+title Activity 04 - Loan Application
+start
+|Underwriting|
+:1. Application draft - capture applicant input;
+|LoanAPI|
+:2. Application draft - validate document package;
+|Underwriting|
+:3. Application draft - enrich with financial profile;
+|LoanAPI|
+:4. Application draft - execute eligibility logic;
+|Underwriting|
+:5. Application draft - record decision trail;
+|LoanAPI|
+:6. Identity and KYC - capture applicant input;
+|Underwriting|
+:7. Identity and KYC - validate document package;
+|LoanAPI|
+:8. Identity and KYC - enrich with financial profile;
+|Underwriting|
+:9. Identity and KYC - execute eligibility logic;
+|LoanAPI|
+:10. Identity and KYC - record decision trail;
+if (Identity and KYC accepted?) then (yes)
+  :Proceed after identity and kyc;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|Underwriting|
+:11. Income normalization - capture applicant input;
+|LoanAPI|
+:12. Income normalization - validate document package;
+|Underwriting|
+:13. Income normalization - enrich with financial profile;
+|LoanAPI|
+:14. Income normalization - execute eligibility logic;
+|Underwriting|
+:15. Income normalization - record decision trail;
+|LoanAPI|
+:16. Credit bureau pull - capture applicant input;
+|Underwriting|
+:17. Credit bureau pull - validate document package;
+|LoanAPI|
+:18. Credit bureau pull - enrich with financial profile;
+|Underwriting|
+:19. Credit bureau pull - execute eligibility logic;
+|LoanAPI|
+:20. Credit bureau pull - record decision trail;
+|Underwriting|
+:21. Policy pre-screen - capture applicant input;
+|LoanAPI|
+:22. Policy pre-screen - validate document package;
+|Underwriting|
+:23. Policy pre-screen - enrich with financial profile;
+|LoanAPI|
+:24. Policy pre-screen - execute eligibility logic;
+|Underwriting|
+:25. Policy pre-screen - record decision trail;
+if (Policy pre-screen accepted?) then (yes)
+  :Proceed after policy pre-screen;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|LoanAPI|
+:26. Underwriter triage - capture applicant input;
+|Underwriting|
+:27. Underwriter triage - validate document package;
+|LoanAPI|
+:28. Underwriter triage - enrich with financial profile;
+|Underwriting|
+:29. Underwriter triage - execute eligibility logic;
+|LoanAPI|
+:30. Underwriter triage - record decision trail;
+if (Underwriter triage accepted?) then (yes)
+  :Proceed after underwriter triage;
+else (conditional)
+  :Request additional collateral documents;
+endif
+|Underwriting|
+:31. Offer construction - capture applicant input;
+|LoanAPI|
+:32. Offer construction - validate document package;
+|Underwriting|
+:33. Offer construction - enrich with financial profile;
+|LoanAPI|
+:34. Offer construction - execute eligibility logic;
+|Underwriting|
+:35. Offer construction - record decision trail;
+fork
+|ApplicantPortal|
+:Update user-facing status and timeline;
+fork again
+|LoanAPI|
+:Persist transactional state and domain event;
+fork again
+|CreditBureau|
+:Synchronize dependent services and records;
+fork again
+|Underwriting|
+:Write audit, compliance and monitoring outputs;
+end fork
+|LoanAPI|
+:36. Acceptance and booking - capture applicant input;
+|Underwriting|
+:37. Acceptance and booking - validate document package;
+|LoanAPI|
+:38. Acceptance and booking - enrich with financial profile;
+|Underwriting|
+:39. Acceptance and booking - execute eligibility logic;
+|LoanAPI|
+:40. Acceptance and booking - record decision trail;
+|Underwriting|
+:41. Servicing setup - capture applicant input;
+|LoanAPI|
+:42. Servicing setup - validate document package;
+|Underwriting|
+:43. Servicing setup - enrich with financial profile;
+|LoanAPI|
+:44. Servicing setup - execute eligibility logic;
+|Underwriting|
+:45. Servicing setup - record decision trail;
+fork
+|ApplicantPortal|
+:Update user-facing status and timeline;
+fork again
+|LoanAPI|
+:Persist transactional state and domain event;
+fork again
+|CreditBureau|
+:Synchronize dependent services and records;
+fork again
+|Underwriting|
+:Write audit, compliance and monitoring outputs;
+end fork
+stop
+@enduml

@@ -1,0 +1,125 @@
+@startuml
+title Activity 06 - Admin Freeze Account
+start
+|NotifySvc|
+:1. Freeze request intake - capture admin command;
+|CoreAPI|
+:2. Freeze request intake - validate entitlement policy;
+|NotifySvc|
+:3. Freeze request intake - enrich with case/account context;
+|CoreAPI|
+:4. Freeze request intake - execute freeze governance step;
+|NotifySvc|
+:5. Freeze request intake - record governance evidence;
+if (Freeze request intake accepted?) then (yes)
+  :Proceed after freeze request intake;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|CoreAPI|
+:6. Authorization resolution - capture admin command;
+|NotifySvc|
+:7. Authorization resolution - validate entitlement policy;
+|CoreAPI|
+:8. Authorization resolution - enrich with case/account context;
+|NotifySvc|
+:9. Authorization resolution - execute freeze governance step;
+|CoreAPI|
+:10. Authorization resolution - record governance evidence;
+|NotifySvc|
+:11. Account status assessment - capture admin command;
+|CoreAPI|
+:12. Account status assessment - validate entitlement policy;
+|NotifySvc|
+:13. Account status assessment - enrich with case/account context;
+|CoreAPI|
+:14. Account status assessment - execute freeze governance step;
+|NotifySvc|
+:15. Account status assessment - record governance evidence;
+|CoreAPI|
+:16. Case correlation - capture admin command;
+|NotifySvc|
+:17. Case correlation - validate entitlement policy;
+|CoreAPI|
+:18. Case correlation - enrich with case/account context;
+|NotifySvc|
+:19. Case correlation - execute freeze governance step;
+|CoreAPI|
+:20. Case correlation - record governance evidence;
+|NotifySvc|
+:21. Freeze policy verdict - capture admin command;
+|CoreAPI|
+:22. Freeze policy verdict - validate entitlement policy;
+|NotifySvc|
+:23. Freeze policy verdict - enrich with case/account context;
+|CoreAPI|
+:24. Freeze policy verdict - execute freeze governance step;
+|NotifySvc|
+:25. Freeze policy verdict - record governance evidence;
+if (Freeze policy verdict accepted?) then (yes)
+  :Proceed after freeze policy verdict;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|CoreAPI|
+:26. Restriction rollout - capture admin command;
+|NotifySvc|
+:27. Restriction rollout - validate entitlement policy;
+|CoreAPI|
+:28. Restriction rollout - enrich with case/account context;
+|NotifySvc|
+:29. Restriction rollout - execute freeze governance step;
+|CoreAPI|
+:30. Restriction rollout - record governance evidence;
+fork
+|OpsConsole|
+:Update user-facing status and timeline;
+fork again
+|CoreAPI|
+:Persist transactional state and domain event;
+fork again
+|CaseMgr|
+:Synchronize dependent services and records;
+fork again
+|NotifySvc|
+:Write audit, compliance and monitoring outputs;
+end fork
+|NotifySvc|
+:31. Session/token revocation - capture admin command;
+|CoreAPI|
+:32. Session/token revocation - validate entitlement policy;
+|NotifySvc|
+:33. Session/token revocation - enrich with case/account context;
+|CoreAPI|
+:34. Session/token revocation - execute freeze governance step;
+|NotifySvc|
+:35. Session/token revocation - record governance evidence;
+|CoreAPI|
+:36. Stakeholder broadcast - capture admin command;
+|NotifySvc|
+:37. Stakeholder broadcast - validate entitlement policy;
+|CoreAPI|
+:38. Stakeholder broadcast - enrich with case/account context;
+|NotifySvc|
+:39. Stakeholder broadcast - execute freeze governance step;
+|CoreAPI|
+:40. Stakeholder broadcast - record governance evidence;
+|NotifySvc|
+:41. Freeze governance closure - capture admin command;
+|CoreAPI|
+:42. Freeze governance closure - validate entitlement policy;
+|NotifySvc|
+:43. Freeze governance closure - enrich with case/account context;
+|CoreAPI|
+:44. Freeze governance closure - execute freeze governance step;
+|NotifySvc|
+:45. Freeze governance closure - record governance evidence;
+if (Freeze governance closure accepted?) then (yes)
+  :Proceed after freeze governance closure;
+else (escalate)
+  :Escalate freeze review to senior governance board;
+endif
+stop
+@enduml

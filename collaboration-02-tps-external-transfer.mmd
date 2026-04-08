@@ -1,0 +1,21 @@
+%% Collaboration 02 Tps External Transfer
+flowchart LR
+  CustomerApp["CustomerApp"]
+  AuthAPI["AuthAPI"]
+  TPS["TPS"]
+  Gateway["Gateway"]
+  ExtNetwork["ExtNetwork"]
+  Compliance["Compliance"]
+  NotifySvc["NotifySvc"]
+  CustomerApp -->|"Intake capture\nValidation execute\nPolicy enrich\nExecution validate\nReconciliation capture\nException execute"| AuthAPI
+  AuthAPI -->|"Intake validate\nContext capture\nPolicy execute\nExecution enrich\nReconciliation validate\nClosure capture"| TPS
+  TPS -->|"Intake enrich\nContext validate\nDecision capture\nExecution execute\nReconciliation enrich\nClosure validate"| Gateway
+  Gateway -->|"Intake execute\nContext enrich\nDecision validate\nNotification capture\nReconciliation execute\nClosure enrich"| ExtNetwork
+  ExtNetwork -->|"Validation capture\nContext execute\nretry call\nDecision enrich\nNotification validate\nException capture\nClosure execute"| Compliance
+  Compliance -->|"Validation validate\nPolicy capture\nDecision execute\nNotification enrich\nException validate"| NotifySvc
+  NotifySvc -->|"Validation enrich\nPolicy validate\nExecution capture\nNotification execute\nretry call\napp notification\nException enrich"| CustomerApp
+  AuthAPI -->|"proceed\nrework"| CustomerApp
+  TPS -->|"proceed\nrework"| AuthAPI
+  Gateway -->|"proceed\nrework"| TPS
+  ExtNetwork -->|"proceed\nrework"| Gateway
+  NotifySvc -->|"email/sms"| NotifySvc

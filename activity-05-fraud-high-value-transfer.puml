@@ -1,0 +1,141 @@
+@startuml
+title Activity 05 - Fraud High Value Transfer
+start
+|OpsConsole|
+:1. Event ingestion - capture event context;
+|FraudEngine|
+:2. Event ingestion - validate anomaly indicators;
+|OpsConsole|
+:3. Event ingestion - enrich case evidence;
+|FraudEngine|
+:4. Event ingestion - execute decision action;
+|OpsConsole|
+:5. Event ingestion - record forensic audit;
+|FraudEngine|
+:6. Signal feature build - capture event context;
+|OpsConsole|
+:7. Signal feature build - validate anomaly indicators;
+|FraudEngine|
+:8. Signal feature build - enrich case evidence;
+|OpsConsole|
+:9. Signal feature build - execute decision action;
+|FraudEngine|
+:10. Signal feature build - record forensic audit;
+|OpsConsole|
+:11. Risk score computation - capture event context;
+|FraudEngine|
+:12. Risk score computation - validate anomaly indicators;
+|OpsConsole|
+:13. Risk score computation - enrich case evidence;
+|FraudEngine|
+:14. Risk score computation - execute decision action;
+|OpsConsole|
+:15. Risk score computation - record forensic audit;
+if (Risk score computation accepted?) then (yes)
+  :Proceed after risk score computation;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|FraudEngine|
+:16. Alert qualification - capture event context;
+|OpsConsole|
+:17. Alert qualification - validate anomaly indicators;
+|FraudEngine|
+:18. Alert qualification - enrich case evidence;
+|OpsConsole|
+:19. Alert qualification - execute decision action;
+|FraudEngine|
+:20. Alert qualification - record forensic audit;
+fork
+|TxnStream|
+:Update user-facing status and timeline;
+fork again
+|FraudEngine|
+:Persist transactional state and domain event;
+fork again
+|CaseMgr|
+:Synchronize dependent services and records;
+fork again
+|OpsConsole|
+:Write audit, compliance and monitoring outputs;
+end fork
+|OpsConsole|
+:21. Case investigation - capture event context;
+|FraudEngine|
+:22. Case investigation - validate anomaly indicators;
+|OpsConsole|
+:23. Case investigation - enrich case evidence;
+|FraudEngine|
+:24. Case investigation - execute decision action;
+|OpsConsole|
+:25. Case investigation - record forensic audit;
+|FraudEngine|
+:26. Customer callback - capture event context;
+|OpsConsole|
+:27. Customer callback - validate anomaly indicators;
+|FraudEngine|
+:28. Customer callback - enrich case evidence;
+|OpsConsole|
+:29. Customer callback - execute decision action;
+|FraudEngine|
+:30. Customer callback - record forensic audit;
+if (Customer callback accepted?) then (yes)
+  :Proceed after customer callback;
+else (uncertain)
+  :Run enhanced verification loop;
+endif
+|OpsConsole|
+:31. Disposition assignment - capture event context;
+|FraudEngine|
+:32. Disposition assignment - validate anomaly indicators;
+|OpsConsole|
+:33. Disposition assignment - enrich case evidence;
+|FraudEngine|
+:34. Disposition assignment - execute decision action;
+|OpsConsole|
+:35. Disposition assignment - record forensic audit;
+|FraudEngine|
+:36. Control enforcement - capture event context;
+|OpsConsole|
+:37. Control enforcement - validate anomaly indicators;
+|FraudEngine|
+:38. Control enforcement - enrich case evidence;
+|OpsConsole|
+:39. Control enforcement - execute decision action;
+|FraudEngine|
+:40. Control enforcement - record forensic audit;
+if (Control enforcement accepted?) then (yes)
+  :Proceed after control enforcement;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|OpsConsole|
+:41. Post-incident review - capture event context;
+|FraudEngine|
+:42. Post-incident review - validate anomaly indicators;
+|OpsConsole|
+:43. Post-incident review - enrich case evidence;
+|FraudEngine|
+:44. Post-incident review - execute decision action;
+|OpsConsole|
+:45. Post-incident review - record forensic audit;
+fork
+|TxnStream|
+:Update user-facing status and timeline;
+fork again
+|FraudEngine|
+:Persist transactional state and domain event;
+fork again
+|CaseMgr|
+:Synchronize dependent services and records;
+fork again
+|OpsConsole|
+:Write audit, compliance and monitoring outputs;
+end fork
+while (Case confidence below threshold?) is (yes)
+:Collect additional evidence and re-score risk;
+endwhile (no)
+stop
+@enduml

@@ -1,0 +1,126 @@
+@startuml
+title Activity 01 - Login and 2FA
+start
+|FraudEngine|
+:1. Credential entry - capture credentials;
+|AuthAPI|
+:2. Credential entry - hash and compare password;
+|FraudEngine|
+:3. Credential entry - construct challenge payload;
+|AuthAPI|
+:4. Credential entry - verify submitted factor;
+|FraudEngine|
+:5. Credential entry - persist authenticated session;
+|AuthAPI|
+:6. Password authentication - capture credentials;
+|FraudEngine|
+:7. Password authentication - hash and compare password;
+|AuthAPI|
+:8. Password authentication - construct challenge payload;
+|FraudEngine|
+:9. Password authentication - verify submitted factor;
+|AuthAPI|
+:10. Password authentication - persist authenticated session;
+if (Password authentication accepted?) then (yes)
+  :Proceed after password authentication;
+else (retry)
+  :Prompt re-entry of credentials and challenge;
+  :Return to authentication context;
+endif
+|FraudEngine|
+:11. Challenge generation - capture credentials;
+|AuthAPI|
+:12. Challenge generation - hash and compare password;
+|FraudEngine|
+:13. Challenge generation - construct challenge payload;
+|AuthAPI|
+:14. Challenge generation - verify submitted factor;
+|FraudEngine|
+:15. Challenge generation - persist authenticated session;
+|AuthAPI|
+:16. OTP verification - capture credentials;
+|FraudEngine|
+:17. OTP verification - hash and compare password;
+|AuthAPI|
+:18. OTP verification - construct challenge payload;
+|FraudEngine|
+:19. OTP verification - verify submitted factor;
+|AuthAPI|
+:20. OTP verification - persist authenticated session;
+if (OTP verification accepted?) then (yes)
+  :Proceed after otp verification;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|FraudEngine|
+:21. Session issuing - capture credentials;
+|AuthAPI|
+:22. Session issuing - hash and compare password;
+|FraudEngine|
+:23. Session issuing - construct challenge payload;
+|AuthAPI|
+:24. Session issuing - verify submitted factor;
+|FraudEngine|
+:25. Session issuing - persist authenticated session;
+fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
+|AuthAPI|
+:Persist transactional state and domain event;
+fork again
+|NotificationService|
+:Synchronize dependent services and records;
+fork again
+|FraudEngine|
+:Write audit, compliance and monitoring outputs;
+end fork
+|AuthAPI|
+:26. Device trust scoring - capture credentials;
+|FraudEngine|
+:27. Device trust scoring - hash and compare password;
+|AuthAPI|
+:28. Device trust scoring - construct challenge payload;
+|FraudEngine|
+:29. Device trust scoring - verify submitted factor;
+|AuthAPI|
+:30. Device trust scoring - persist authenticated session;
+|FraudEngine|
+:31. Adaptive risk checks - capture credentials;
+|AuthAPI|
+:32. Adaptive risk checks - hash and compare password;
+|FraudEngine|
+:33. Adaptive risk checks - construct challenge payload;
+|AuthAPI|
+:34. Adaptive risk checks - verify submitted factor;
+|FraudEngine|
+:35. Adaptive risk checks - persist authenticated session;
+if (Adaptive risk checks accepted?) then (yes)
+  :Proceed after adaptive risk checks;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|AuthAPI|
+:36. Permission hydration - capture credentials;
+|FraudEngine|
+:37. Permission hydration - hash and compare password;
+|AuthAPI|
+:38. Permission hydration - construct challenge payload;
+|FraudEngine|
+:39. Permission hydration - verify submitted factor;
+|AuthAPI|
+:40. Permission hydration - persist authenticated session;
+|FraudEngine|
+:41. Dashboard launch - capture credentials;
+|AuthAPI|
+:42. Dashboard launch - hash and compare password;
+|FraudEngine|
+:43. Dashboard launch - construct challenge payload;
+|AuthAPI|
+:44. Dashboard launch - verify submitted factor;
+|FraudEngine|
+:45. Dashboard launch - persist authenticated session;
+stop
+@enduml

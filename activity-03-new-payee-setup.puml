@@ -1,0 +1,126 @@
+@startuml
+title Activity 03 - New Payee Setup
+start
+|Risk|
+:1. Payee draft - capture payee details;
+|PayeeAPI|
+:2. Payee draft - validate syntactic rules;
+|Risk|
+:3. Payee draft - enrich with bank metadata;
+|PayeeAPI|
+:4. Payee draft - execute onboarding rule;
+|Risk|
+:5. Payee draft - record onboarding state;
+|PayeeAPI|
+:6. Duplicate prevention - capture payee details;
+|Risk|
+:7. Duplicate prevention - validate syntactic rules;
+|PayeeAPI|
+:8. Duplicate prevention - enrich with bank metadata;
+|Risk|
+:9. Duplicate prevention - execute onboarding rule;
+|PayeeAPI|
+:10. Duplicate prevention - record onboarding state;
+|Risk|
+:11. Bank directory lookup - capture payee details;
+|PayeeAPI|
+:12. Bank directory lookup - validate syntactic rules;
+|Risk|
+:13. Bank directory lookup - enrich with bank metadata;
+|PayeeAPI|
+:14. Bank directory lookup - execute onboarding rule;
+|Risk|
+:15. Bank directory lookup - record onboarding state;
+if (Bank directory lookup accepted?) then (yes)
+  :Proceed after bank directory lookup;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|PayeeAPI|
+:16. Ownership confirmation - capture payee details;
+|Risk|
+:17. Ownership confirmation - validate syntactic rules;
+|PayeeAPI|
+:18. Ownership confirmation - enrich with bank metadata;
+|Risk|
+:19. Ownership confirmation - execute onboarding rule;
+|PayeeAPI|
+:20. Ownership confirmation - record onboarding state;
+|Risk|
+:21. Sanctions and risk checks - capture payee details;
+|PayeeAPI|
+:22. Sanctions and risk checks - validate syntactic rules;
+|Risk|
+:23. Sanctions and risk checks - enrich with bank metadata;
+|PayeeAPI|
+:24. Sanctions and risk checks - execute onboarding rule;
+|Risk|
+:25. Sanctions and risk checks - record onboarding state;
+if (Sanctions and risk checks accepted?) then (yes)
+  :Proceed after sanctions and risk checks;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|PayeeAPI|
+:26. Strong-customer-auth - capture payee details;
+|Risk|
+:27. Strong-customer-auth - validate syntactic rules;
+|PayeeAPI|
+:28. Strong-customer-auth - enrich with bank metadata;
+|Risk|
+:29. Strong-customer-auth - execute onboarding rule;
+|PayeeAPI|
+:30. Strong-customer-auth - record onboarding state;
+|Risk|
+:31. Payee activation - capture payee details;
+|PayeeAPI|
+:32. Payee activation - validate syntactic rules;
+|Risk|
+:33. Payee activation - enrich with bank metadata;
+|PayeeAPI|
+:34. Payee activation - execute onboarding rule;
+|Risk|
+:35. Payee activation - record onboarding state;
+if (Payee activation accepted?) then (yes)
+  :Proceed after payee activation;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|PayeeAPI|
+:36. Default limit assignment - capture payee details;
+|Risk|
+:37. Default limit assignment - validate syntactic rules;
+|PayeeAPI|
+:38. Default limit assignment - enrich with bank metadata;
+|Risk|
+:39. Default limit assignment - execute onboarding rule;
+|PayeeAPI|
+:40. Default limit assignment - record onboarding state;
+fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
+|PayeeAPI|
+:Persist transactional state and domain event;
+fork again
+|Directory|
+:Synchronize dependent services and records;
+fork again
+|Risk|
+:Write audit, compliance and monitoring outputs;
+end fork
+|Risk|
+:41. Onboarding closure - capture payee details;
+|PayeeAPI|
+:42. Onboarding closure - validate syntactic rules;
+|Risk|
+:43. Onboarding closure - enrich with bank metadata;
+|PayeeAPI|
+:44. Onboarding closure - execute onboarding rule;
+|Risk|
+:45. Onboarding closure - record onboarding state;
+stop
+@enduml

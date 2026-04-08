@@ -1,0 +1,21 @@
+%% Collaboration 04 Loan Processing Underwriting
+flowchart LR
+  ApplicantPortal["ApplicantPortal"]
+  LoanAPI["LoanAPI"]
+  Rules["Rules"]
+  CreditBureau["CreditBureau"]
+  Underwriting["Underwriting"]
+  DocSvc["DocSvc"]
+  NotifySvc["NotifySvc"]
+  ApplicantPortal -->|"Intake capture\nValidation execute\nPolicy enrich\nExecution validate\nReconciliation capture\nException execute"| LoanAPI
+  LoanAPI -->|"Intake validate\nContext capture\nPolicy execute\nExecution enrich\nReconciliation validate\nClosure capture"| Rules
+  Rules -->|"Intake enrich\nContext validate\nDecision capture\nExecution execute\nReconciliation enrich\nClosure validate"| CreditBureau
+  CreditBureau -->|"Intake execute\nContext enrich\nDecision validate\nNotification capture\nReconciliation execute\nClosure enrich"| Underwriting
+  Underwriting -->|"Validation capture\nContext execute\nretry call\nDecision enrich\nNotification validate\nException capture\nClosure execute"| DocSvc
+  DocSvc -->|"Validation validate\nPolicy capture\nDecision execute\nNotification enrich\nException validate"| NotifySvc
+  NotifySvc -->|"Validation enrich\nPolicy validate\nExecution capture\nNotification execute\nretry call\napp notification\nException enrich"| ApplicantPortal
+  LoanAPI -->|"proceed\nrework"| ApplicantPortal
+  Rules -->|"proceed\nrework"| LoanAPI
+  CreditBureau -->|"proceed\nrework"| Rules
+  Underwriting -->|"proceed\nrework"| CreditBureau
+  NotifySvc -->|"email/sms"| NotifySvc

@@ -1,0 +1,82 @@
+@startuml
+title Sequence 02 - TPS External Transfer
+autonumber
+participant "CustomerApp" as CustomerApp
+participant "AuthAPI" as AuthAPI
+participant "TPS" as TPS
+participant "Gateway" as Gateway
+participant "ExtNetwork" as ExtNetwork
+participant "Compliance" as Compliance
+participant "NotifySvc" as NotifySvc
+CustomerApp -> AuthAPI : Intake capture
+AuthAPI -> TPS : Intake validate
+TPS -> Gateway : Intake enrich
+Gateway -> ExtNetwork : Intake execute
+ExtNetwork -> Compliance : Validation capture
+Compliance --> NotifySvc : Validation validate
+NotifySvc -> CustomerApp : Validation enrich
+CustomerApp -> AuthAPI : Validation execute
+alt gate approved
+  AuthAPI -> CustomerApp : proceed
+else gate rejected
+  AuthAPI --> CustomerApp : rework
+end
+AuthAPI -> TPS : Context capture
+TPS -> Gateway : Context validate
+Gateway -> ExtNetwork : Context enrich
+ExtNetwork --> Compliance : Context execute
+loop retry <= 3
+  ExtNetwork -> Compliance : retry call
+end
+Compliance -> NotifySvc : Policy capture
+NotifySvc -> CustomerApp : Policy validate
+CustomerApp -> AuthAPI : Policy enrich
+AuthAPI -> TPS : Policy execute
+alt gate approved
+  TPS -> AuthAPI : proceed
+else gate rejected
+  TPS --> AuthAPI : rework
+end
+TPS -> Gateway : Decision capture
+Gateway --> ExtNetwork : Decision validate
+ExtNetwork -> Compliance : Decision enrich
+Compliance -> NotifySvc : Decision execute
+NotifySvc -> CustomerApp : Execution capture
+CustomerApp -> AuthAPI : Execution validate
+AuthAPI -> TPS : Execution enrich
+TPS --> Gateway : Execution execute
+alt gate approved
+  Gateway -> TPS : proceed
+else gate rejected
+  Gateway --> TPS : rework
+end
+Gateway -> ExtNetwork : Notification capture
+ExtNetwork -> Compliance : Notification validate
+Compliance -> NotifySvc : Notification enrich
+NotifySvc -> CustomerApp : Notification execute
+loop retry <= 3
+  NotifySvc -> CustomerApp : retry call
+end
+CustomerApp -> AuthAPI : Reconciliation capture
+AuthAPI --> TPS : Reconciliation validate
+TPS -> Gateway : Reconciliation enrich
+Gateway -> ExtNetwork : Reconciliation execute
+alt gate approved
+  ExtNetwork -> Gateway : proceed
+else gate rejected
+  ExtNetwork --> Gateway : rework
+end
+ExtNetwork -> Compliance : Exception capture
+Compliance -> NotifySvc : Exception validate
+par notify channels
+  NotifySvc -> CustomerApp : app notification
+else
+  NotifySvc -> NotifySvc : email/sms
+end
+NotifySvc -> CustomerApp : Exception enrich
+CustomerApp --> AuthAPI : Exception execute
+AuthAPI -> TPS : Closure capture
+TPS -> Gateway : Closure validate
+Gateway -> ExtNetwork : Closure enrich
+ExtNetwork -> Compliance : Closure execute
+@enduml
