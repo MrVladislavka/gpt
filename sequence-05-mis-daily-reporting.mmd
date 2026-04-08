@@ -1,0 +1,90 @@
+%% Sequence - MIS Daily Reporting
+sequenceDiagram
+  autonumber
+  participant Scheduler
+  participant MIS
+  participant CoreAPI
+  participant Warehouse
+  participant ReportEngine
+  participant Distribution
+  Scheduler->>MIS: 1. Intake - capture
+  MIS->>CoreAPI: 2. Intake - validate
+  CoreAPI->>Warehouse: 3. Intake - enrich
+  Warehouse->>ReportEngine: 4. Intake - execute
+  ReportEngine->>Distribution: 5. Intake - record
+  Distribution-->>Scheduler: 6. Authentication - capture
+  Scheduler->>MIS: 7. Authentication - validate
+  MIS->>CoreAPI: 8. Authentication - enrich
+  alt Gate approved
+    CoreAPI->>MIS: proceed
+  else Gate rejected
+    CoreAPI-->>MIS: rework required
+  end
+  CoreAPI->>Warehouse: 9. Authentication - execute
+  Warehouse->>ReportEngine: 10. Authentication - record
+  ReportEngine->>Distribution: 11. Validation - capture
+  Distribution-->>Scheduler: 12. Validation - validate
+  loop Retry up to 3 attempts
+    Distribution->>Scheduler: retry request
+  end
+  Scheduler->>MIS: 13. Validation - enrich
+  MIS->>CoreAPI: 14. Validation - execute
+  CoreAPI->>Warehouse: 15. Validation - record
+  Warehouse->>ReportEngine: 16. Policy - capture
+  alt Gate approved
+    ReportEngine->>Warehouse: proceed
+  else Gate rejected
+    ReportEngine-->>Warehouse: rework required
+  end
+  ReportEngine->>Distribution: 17. Policy - validate
+  Distribution-->>Scheduler: 18. Policy - enrich
+  Scheduler->>MIS: 19. Policy - execute
+  MIS->>CoreAPI: 20. Policy - record
+  CoreAPI->>Warehouse: 21. Execution - capture
+  Warehouse->>ReportEngine: 22. Execution - validate
+  ReportEngine->>Distribution: 23. Execution - enrich
+  Distribution-->>Scheduler: 24. Execution - execute
+  alt Gate approved
+    Scheduler->>Distribution: proceed
+  else Gate rejected
+    Scheduler-->>Distribution: rework required
+  end
+  Scheduler->>MIS: 25. Execution - record
+  MIS->>CoreAPI: 26. Notification - capture
+  CoreAPI->>Warehouse: 27. Notification - validate
+  Warehouse->>ReportEngine: 28. Notification - enrich
+  loop Retry up to 3 attempts
+    Warehouse->>ReportEngine: retry request
+  end
+  ReportEngine->>Distribution: 29. Notification - execute
+  Distribution-->>Scheduler: 30. Notification - record
+  Scheduler->>MIS: 31. Reconciliation - capture
+  MIS->>CoreAPI: 32. Reconciliation - validate
+  alt Gate approved
+    CoreAPI->>MIS: proceed
+  else Gate rejected
+    CoreAPI-->>MIS: rework required
+  end
+  CoreAPI->>Warehouse: 33. Reconciliation - enrich
+  Warehouse->>ReportEngine: 34. Reconciliation - execute
+  par Notify channels
+    ReportEngine->>Scheduler: app notice
+  and
+    ReportEngine->>Distribution: email/SMS notice
+  end
+  ReportEngine->>Distribution: 35. Reconciliation - record
+  Distribution-->>Scheduler: 36. Exception - capture
+  Scheduler->>MIS: 37. Exception - validate
+  MIS->>CoreAPI: 38. Exception - enrich
+  CoreAPI->>Warehouse: 39. Exception - execute
+  Warehouse->>ReportEngine: 40. Exception - record
+  alt Gate approved
+    ReportEngine->>Warehouse: proceed
+  else Gate rejected
+    ReportEngine-->>Warehouse: rework required
+  end
+  ReportEngine->>Distribution: 41. Closure - capture
+  Distribution-->>Scheduler: 42. Closure - validate
+  Scheduler->>MIS: 43. Closure - enrich
+  MIS->>CoreAPI: 44. Closure - execute
+  CoreAPI->>Warehouse: 45. Closure - record

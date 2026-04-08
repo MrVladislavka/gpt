@@ -1,0 +1,53 @@
+%% Collaboration 05: MIS Daily Reporting
+flowchart LR
+  Scheduler["Scheduler"]
+  MIS["MIS"]
+  CoreAPI["CoreAPI"]
+  Warehouse["Warehouse"]
+  ReportEngine["ReportEngine"]
+  Distribution["Distribution"]
+  Scheduler -- "1. Intake capture" --> CoreAPI
+  MIS -- "2. Intake validate" --> Warehouse
+  CoreAPI -- "3. Intake enrich" --> ReportEngine
+  Warehouse -- "4. Intake execute" --> Distribution
+  ReportEngine -- "5. Intake record" --> Scheduler
+  Distribution -- "6. Authentication capture" --> MIS
+  Scheduler -- "7. Authentication validate" --> CoreAPI
+  MIS -- "8. Authentication enrich" --> Warehouse
+  CoreAPI -- "9. Authentication execute" --> ReportEngine
+  Warehouse -- "10. Authentication record" --> Distribution
+  ReportEngine -- "11. Validation capture" --> Scheduler
+  Distribution -- "12. Validation validate" --> MIS
+  Scheduler -- "13. Validation enrich" --> CoreAPI
+  MIS -- "14. Validation execute" --> Warehouse
+  CoreAPI -- "15. Validation record" --> ReportEngine
+  Warehouse -- "16. Policy capture" --> Distribution
+  ReportEngine -- "17. Policy validate" --> Scheduler
+  Distribution -- "18. Policy enrich" --> MIS
+  Scheduler -- "19. Policy execute" --> CoreAPI
+  MIS -- "20. Policy record" --> Warehouse
+  CoreAPI -- "21. Execution capture" --> ReportEngine
+  Warehouse -- "22. Execution validate" --> Distribution
+  ReportEngine -- "23. Execution enrich" --> Scheduler
+  Distribution -- "24. Execution execute" --> MIS
+  Scheduler -- "25. Execution record" --> CoreAPI
+  MIS -- "26. Notification capture" --> Warehouse
+  CoreAPI -- "27. Notification validate" --> ReportEngine
+  Warehouse -- "28. Notification enrich" --> Distribution
+  ReportEngine -- "29. Notification execute" --> Scheduler
+  Distribution -- "30. Notification record" --> MIS
+  Scheduler -- "31. Reconciliation capture" --> CoreAPI
+  MIS -- "32. Reconciliation validate" --> Warehouse
+  CoreAPI -- "33. Reconciliation enrich" --> ReportEngine
+  Warehouse -- "34. Reconciliation execute" --> Distribution
+  ReportEngine -- "35. Reconciliation record" --> Scheduler
+  Distribution -- "36. Exception capture" --> MIS
+  Scheduler -- "37. Exception validate" --> CoreAPI
+  MIS -- "38. Exception enrich" --> Warehouse
+  CoreAPI -- "39. Exception execute" --> ReportEngine
+  Warehouse -- "40. Exception record" --> Distribution
+  ReportEngine -- "41. Closure capture" --> Scheduler
+  Distribution -- "42. Closure validate" --> MIS
+  Scheduler -- "43. Closure enrich" --> CoreAPI
+  MIS -- "44. Closure execute" --> Warehouse
+  CoreAPI -- "45. Closure record" --> ReportEngine

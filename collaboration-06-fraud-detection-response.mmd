@@ -1,0 +1,54 @@
+%% Collaboration 06: Fraud Detection Response
+flowchart LR
+  TxnStream["TxnStream"]
+  FraudEngine["FraudEngine"]
+  CaseMgr["CaseMgr"]
+  OpsConsole["OpsConsole"]
+  CoreAPI["CoreAPI"]
+  NotifySvc["NotifySvc"]
+  AuditSvc["AuditSvc"]
+  TxnStream -- "1. Intake capture" --> CaseMgr
+  FraudEngine -- "2. Intake validate" --> OpsConsole
+  CaseMgr -- "3. Intake enrich" --> CoreAPI
+  OpsConsole -- "4. Intake execute" --> NotifySvc
+  CoreAPI -- "5. Intake record" --> AuditSvc
+  NotifySvc -- "6. Authentication capture" --> TxnStream
+  AuditSvc -- "7. Authentication validate" --> FraudEngine
+  TxnStream -- "8. Authentication enrich" --> CaseMgr
+  FraudEngine -- "9. Authentication execute" --> OpsConsole
+  CaseMgr -- "10. Authentication record" --> CoreAPI
+  OpsConsole -- "11. Validation capture" --> NotifySvc
+  CoreAPI -- "12. Validation validate" --> AuditSvc
+  NotifySvc -- "13. Validation enrich" --> TxnStream
+  AuditSvc -- "14. Validation execute" --> FraudEngine
+  TxnStream -- "15. Validation record" --> CaseMgr
+  FraudEngine -- "16. Policy capture" --> OpsConsole
+  CaseMgr -- "17. Policy validate" --> CoreAPI
+  OpsConsole -- "18. Policy enrich" --> NotifySvc
+  CoreAPI -- "19. Policy execute" --> AuditSvc
+  NotifySvc -- "20. Policy record" --> TxnStream
+  AuditSvc -- "21. Execution capture" --> FraudEngine
+  TxnStream -- "22. Execution validate" --> CaseMgr
+  FraudEngine -- "23. Execution enrich" --> OpsConsole
+  CaseMgr -- "24. Execution execute" --> CoreAPI
+  OpsConsole -- "25. Execution record" --> NotifySvc
+  CoreAPI -- "26. Notification capture" --> AuditSvc
+  NotifySvc -- "27. Notification validate" --> TxnStream
+  AuditSvc -- "28. Notification enrich" --> FraudEngine
+  TxnStream -- "29. Notification execute" --> CaseMgr
+  FraudEngine -- "30. Notification record" --> OpsConsole
+  CaseMgr -- "31. Reconciliation capture" --> CoreAPI
+  OpsConsole -- "32. Reconciliation validate" --> NotifySvc
+  CoreAPI -- "33. Reconciliation enrich" --> AuditSvc
+  NotifySvc -- "34. Reconciliation execute" --> TxnStream
+  AuditSvc -- "35. Reconciliation record" --> FraudEngine
+  TxnStream -- "36. Exception capture" --> CaseMgr
+  FraudEngine -- "37. Exception validate" --> OpsConsole
+  CaseMgr -- "38. Exception enrich" --> CoreAPI
+  OpsConsole -- "39. Exception execute" --> NotifySvc
+  CoreAPI -- "40. Exception record" --> AuditSvc
+  NotifySvc -- "41. Closure capture" --> TxnStream
+  AuditSvc -- "42. Closure validate" --> FraudEngine
+  TxnStream -- "43. Closure enrich" --> CaseMgr
+  FraudEngine -- "44. Closure execute" --> OpsConsole
+  CaseMgr -- "45. Closure record" --> CoreAPI

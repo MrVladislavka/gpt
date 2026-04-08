@@ -1,0 +1,82 @@
+@startuml
+title Sequence 04 - Loan Processing Underwriting
+autonumber
+participant "ApplicantPortal" as ApplicantPortal
+participant "LoanAPI" as LoanAPI
+participant "Rules" as Rules
+participant "CreditBureau" as CreditBureau
+participant "Underwriting" as Underwriting
+participant "DocSvc" as DocSvc
+participant "NotifySvc" as NotifySvc
+ApplicantPortal -> LoanAPI : Intake capture
+LoanAPI -> Rules : Intake validate
+Rules -> CreditBureau : Intake enrich
+CreditBureau -> Underwriting : Intake execute
+Underwriting -> DocSvc : Validation capture
+DocSvc --> NotifySvc : Validation validate
+NotifySvc -> ApplicantPortal : Validation enrich
+ApplicantPortal -> LoanAPI : Validation execute
+alt gate approved
+  LoanAPI -> ApplicantPortal : proceed
+else gate rejected
+  LoanAPI --> ApplicantPortal : rework
+end
+LoanAPI -> Rules : Context capture
+Rules -> CreditBureau : Context validate
+CreditBureau -> Underwriting : Context enrich
+Underwriting --> DocSvc : Context execute
+loop retry <= 3
+  Underwriting -> DocSvc : retry call
+end
+DocSvc -> NotifySvc : Policy capture
+NotifySvc -> ApplicantPortal : Policy validate
+ApplicantPortal -> LoanAPI : Policy enrich
+LoanAPI -> Rules : Policy execute
+alt gate approved
+  Rules -> LoanAPI : proceed
+else gate rejected
+  Rules --> LoanAPI : rework
+end
+Rules -> CreditBureau : Decision capture
+CreditBureau --> Underwriting : Decision validate
+Underwriting -> DocSvc : Decision enrich
+DocSvc -> NotifySvc : Decision execute
+NotifySvc -> ApplicantPortal : Execution capture
+ApplicantPortal -> LoanAPI : Execution validate
+LoanAPI -> Rules : Execution enrich
+Rules --> CreditBureau : Execution execute
+alt gate approved
+  CreditBureau -> Rules : proceed
+else gate rejected
+  CreditBureau --> Rules : rework
+end
+CreditBureau -> Underwriting : Notification capture
+Underwriting -> DocSvc : Notification validate
+DocSvc -> NotifySvc : Notification enrich
+NotifySvc -> ApplicantPortal : Notification execute
+loop retry <= 3
+  NotifySvc -> ApplicantPortal : retry call
+end
+ApplicantPortal -> LoanAPI : Reconciliation capture
+LoanAPI --> Rules : Reconciliation validate
+Rules -> CreditBureau : Reconciliation enrich
+CreditBureau -> Underwriting : Reconciliation execute
+alt gate approved
+  Underwriting -> CreditBureau : proceed
+else gate rejected
+  Underwriting --> CreditBureau : rework
+end
+Underwriting -> DocSvc : Exception capture
+DocSvc -> NotifySvc : Exception validate
+par notify channels
+  NotifySvc -> ApplicantPortal : app notification
+else
+  NotifySvc -> NotifySvc : email/sms
+end
+NotifySvc -> ApplicantPortal : Exception enrich
+ApplicantPortal --> LoanAPI : Exception execute
+LoanAPI -> Rules : Closure capture
+Rules -> CreditBureau : Closure validate
+CreditBureau -> Underwriting : Closure enrich
+Underwriting -> DocSvc : Closure execute
+@enduml

@@ -1,0 +1,90 @@
+%% Sequence - Payee Validation
+sequenceDiagram
+  autonumber
+  participant CustomerApp
+  participant PayeeAPI
+  participant Validation
+  participant Directory
+  participant Risk
+  participant NotifySvc
+  CustomerApp->>PayeeAPI: 1. Intake - capture
+  PayeeAPI->>Validation: 2. Intake - validate
+  Validation->>Directory: 3. Intake - enrich
+  Directory->>Risk: 4. Intake - execute
+  Risk->>NotifySvc: 5. Intake - record
+  NotifySvc-->>CustomerApp: 6. Authentication - capture
+  CustomerApp->>PayeeAPI: 7. Authentication - validate
+  PayeeAPI->>Validation: 8. Authentication - enrich
+  alt Gate approved
+    Validation->>PayeeAPI: proceed
+  else Gate rejected
+    Validation-->>PayeeAPI: rework required
+  end
+  Validation->>Directory: 9. Authentication - execute
+  Directory->>Risk: 10. Authentication - record
+  Risk->>NotifySvc: 11. Validation - capture
+  NotifySvc-->>CustomerApp: 12. Validation - validate
+  loop Retry up to 3 attempts
+    NotifySvc->>CustomerApp: retry request
+  end
+  CustomerApp->>PayeeAPI: 13. Validation - enrich
+  PayeeAPI->>Validation: 14. Validation - execute
+  Validation->>Directory: 15. Validation - record
+  Directory->>Risk: 16. Policy - capture
+  alt Gate approved
+    Risk->>Directory: proceed
+  else Gate rejected
+    Risk-->>Directory: rework required
+  end
+  Risk->>NotifySvc: 17. Policy - validate
+  NotifySvc-->>CustomerApp: 18. Policy - enrich
+  CustomerApp->>PayeeAPI: 19. Policy - execute
+  PayeeAPI->>Validation: 20. Policy - record
+  Validation->>Directory: 21. Execution - capture
+  Directory->>Risk: 22. Execution - validate
+  Risk->>NotifySvc: 23. Execution - enrich
+  NotifySvc-->>CustomerApp: 24. Execution - execute
+  alt Gate approved
+    CustomerApp->>NotifySvc: proceed
+  else Gate rejected
+    CustomerApp-->>NotifySvc: rework required
+  end
+  CustomerApp->>PayeeAPI: 25. Execution - record
+  PayeeAPI->>Validation: 26. Notification - capture
+  Validation->>Directory: 27. Notification - validate
+  Directory->>Risk: 28. Notification - enrich
+  loop Retry up to 3 attempts
+    Directory->>Risk: retry request
+  end
+  Risk->>NotifySvc: 29. Notification - execute
+  NotifySvc-->>CustomerApp: 30. Notification - record
+  CustomerApp->>PayeeAPI: 31. Reconciliation - capture
+  PayeeAPI->>Validation: 32. Reconciliation - validate
+  alt Gate approved
+    Validation->>PayeeAPI: proceed
+  else Gate rejected
+    Validation-->>PayeeAPI: rework required
+  end
+  Validation->>Directory: 33. Reconciliation - enrich
+  Directory->>Risk: 34. Reconciliation - execute
+  par Notify channels
+    Risk->>CustomerApp: app notice
+  and
+    Risk->>NotifySvc: email/SMS notice
+  end
+  Risk->>NotifySvc: 35. Reconciliation - record
+  NotifySvc-->>CustomerApp: 36. Exception - capture
+  CustomerApp->>PayeeAPI: 37. Exception - validate
+  PayeeAPI->>Validation: 38. Exception - enrich
+  Validation->>Directory: 39. Exception - execute
+  Directory->>Risk: 40. Exception - record
+  alt Gate approved
+    Risk->>Directory: proceed
+  else Gate rejected
+    Risk-->>Directory: rework required
+  end
+  Risk->>NotifySvc: 41. Closure - capture
+  NotifySvc-->>CustomerApp: 42. Closure - validate
+  CustomerApp->>PayeeAPI: 43. Closure - enrich
+  PayeeAPI->>Validation: 44. Closure - execute
+  Validation->>Directory: 45. Closure - record
