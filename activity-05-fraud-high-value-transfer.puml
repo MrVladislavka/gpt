@@ -1,41 +1,142 @@
 @startuml
-title Activity 05 - Fraud High Value Transfer (incident response style)
+title Activity 05 - Fraud High Value Transfer
 start
 |TxnStream|
-:Receive high-value TRANSACTION event;
+:1. Event ingestion - capture input context;
 |FraudEngine|
-:Score event using behavior model;
-if (Score above threshold?) then (yes)
-  :Trigger FRAUD_ALERT;
+:2. Event ingestion - validate business constraints;
+|CaseMgr|
+:3. Event ingestion - enrich with related records;
+|OpsConsole|
+:4. Event ingestion - execute core action;
+|TxnStream|
+:5. Event ingestion - record outcome and metrics;
+|FraudEngine|
+:6. Signal enrichment - capture input context;
+|CaseMgr|
+:7. Signal enrichment - validate business constraints;
+|OpsConsole|
+:8. Signal enrichment - enrich with related records;
+|TxnStream|
+:9. Signal enrichment - execute core action;
+|FraudEngine|
+:10. Signal enrichment - record outcome and metrics;
+if (Signal enrichment gate passed?) then (yes)
+  :Continue after signal enrichment;
 else (no)
-  :Allow normal processing;
+  :Create exception task and stop flow;
   stop
 endif
 |CaseMgr|
-:Open and assign investigation case;
+:11. Risk model scoring - capture input context;
 |OpsConsole|
-:Review customer and transaction history;
-while (More evidence needed?) is (yes)
-  :Request additional traces/device data;
-  |FraudEngine|
-  :Recompute risk with new evidence;
-  |OpsConsole|
-endwhile (no)
-:Contact customer for verification;
-if (Customer confirms transfer?) then (yes)
-  :Disposition = legitimate;
-else (no)
-  :Disposition = fraud suspected;
-endif
+:12. Risk model scoring - validate business constraints;
+|TxnStream|
+:13. Risk model scoring - enrich with related records;
+|FraudEngine|
+:14. Risk model scoring - execute core action;
+|CaseMgr|
+:15. Risk model scoring - record outcome and metrics;
+|OpsConsole|
+:16. Alert triage - capture input context;
+|TxnStream|
+:17. Alert triage - validate business constraints;
+|FraudEngine|
+:18. Alert triage - enrich with related records;
+|CaseMgr|
+:19. Alert triage - execute core action;
+|OpsConsole|
+:20. Alert triage - record outcome and metrics;
 fork
-|CoreAPI|
-:Release or block transaction;
+|FraudEngine|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
 fork again
-|NotifySvc|
-:Notify customer outcome;
+|CaseMgr|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
 fork again
-|AuditSvc|
-:Persist incident audit trail;
+|OpsConsole|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
 end fork
+|TxnStream|
+:21. Case investigation - capture input context;
+|FraudEngine|
+:22. Case investigation - validate business constraints;
+|CaseMgr|
+:23. Case investigation - enrich with related records;
+|OpsConsole|
+:24. Case investigation - execute core action;
+|TxnStream|
+:25. Case investigation - record outcome and metrics;
+if (Case investigation gate passed?) then (yes)
+  :Continue after case investigation;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+while (More forensic evidence required?) is (yes)
+:Collect additional traces and recalculate score;
+endwhile (no)
+|FraudEngine|
+:26. Customer verification - capture input context;
+|CaseMgr|
+:27. Customer verification - validate business constraints;
+|OpsConsole|
+:28. Customer verification - enrich with related records;
+|TxnStream|
+:29. Customer verification - execute core action;
+|FraudEngine|
+:30. Customer verification - record outcome and metrics;
+|CaseMgr|
+:31. Disposition decision - capture input context;
+|OpsConsole|
+:32. Disposition decision - validate business constraints;
+|TxnStream|
+:33. Disposition decision - enrich with related records;
+|FraudEngine|
+:34. Disposition decision - execute core action;
+|CaseMgr|
+:35. Disposition decision - record outcome and metrics;
+fork
+|FraudEngine|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|CaseMgr|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|OpsConsole|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|OpsConsole|
+:36. Control execution - capture input context;
+|TxnStream|
+:37. Control execution - validate business constraints;
+|FraudEngine|
+:38. Control execution - enrich with related records;
+|CaseMgr|
+:39. Control execution - execute core action;
+|OpsConsole|
+:40. Control execution - record outcome and metrics;
+if (Control execution gate passed?) then (yes)
+  :Continue after control execution;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|TxnStream|
+:41. Incident closure - capture input context;
+|FraudEngine|
+:42. Incident closure - validate business constraints;
+|CaseMgr|
+:43. Incident closure - enrich with related records;
+|OpsConsole|
+:44. Incident closure - execute core action;
+|TxnStream|
+:45. Incident closure - record outcome and metrics;
 stop
 @enduml

@@ -1,47 +1,139 @@
 @startuml
-title Activity 03 - New Payee Setup (validation-first style)
+title Activity 03 - New Payee Setup
 start
 |CustomerApp|
-:Enter BENEFICIARY details;
+:1. Payee intake - capture input context;
 |PayeeAPI|
-:Normalize and validate fields;
-if (Format valid?) then (yes)
-  :Proceed with verification;
+:2. Payee intake - validate business constraints;
+|Directory|
+:3. Payee intake - enrich with related records;
+|Risk|
+:4. Payee intake - execute core action;
+|CustomerApp|
+:5. Payee intake - record outcome and metrics;
+|PayeeAPI|
+:6. Format and duplicate checks - capture input context;
+|Directory|
+:7. Format and duplicate checks - validate business constraints;
+|Risk|
+:8. Format and duplicate checks - enrich with related records;
+|CustomerApp|
+:9. Format and duplicate checks - execute core action;
+|PayeeAPI|
+:10. Format and duplicate checks - record outcome and metrics;
+if (Format and duplicate checks gate passed?) then (yes)
+  :Continue after format and duplicate checks;
 else (no)
-  :Return field-level errors;
+  :Create exception task and stop flow;
   stop
 endif
 |Directory|
-:Resolve destination bank/account metadata;
-|Validation|
-:Check ownership and account status;
-if (Ownership verified?) then (yes)
-  :Create BENEFICIARY status=PENDING;
-else (no)
-  :Reject payee setup;
-  stop
-endif
+:11. Directory resolution - capture input context;
 |Risk|
-:Evaluate risk and velocity profile;
-if (High risk?) then (yes)
-  :Route to manual review queue;
-  stop
-else (no)
-  :Start SCA challenge;
-endif
+:12. Directory resolution - validate business constraints;
 |CustomerApp|
-:Approve SCA challenge;
+:13. Directory resolution - enrich with related records;
 |PayeeAPI|
-:Activate BENEFICIARY status=ACTIVE;
+:14. Directory resolution - execute core action;
+|Directory|
+:15. Directory resolution - record outcome and metrics;
+|Risk|
+:16. Ownership assurance - capture input context;
+|CustomerApp|
+:17. Ownership assurance - validate business constraints;
+|PayeeAPI|
+:18. Ownership assurance - enrich with related records;
+|Directory|
+:19. Ownership assurance - execute core action;
+|Risk|
+:20. Ownership assurance - record outcome and metrics;
 fork
 |PayeeAPI|
-:Assign default transfer limits;
+:Persist transactional state changes;
+:Publish domain event for downstream services;
 fork again
-|NotificationService|
-:Send payee activation message;
+|Directory|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
 fork again
 |Risk|
-:Write control/audit evidence;
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
 end fork
+|CustomerApp|
+:21. Risk control checks - capture input context;
+|PayeeAPI|
+:22. Risk control checks - validate business constraints;
+|Directory|
+:23. Risk control checks - enrich with related records;
+|Risk|
+:24. Risk control checks - execute core action;
+|CustomerApp|
+:25. Risk control checks - record outcome and metrics;
+if (Risk control checks gate passed?) then (yes)
+  :Continue after risk control checks;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|PayeeAPI|
+:26. Strong customer auth - capture input context;
+|Directory|
+:27. Strong customer auth - validate business constraints;
+|Risk|
+:28. Strong customer auth - enrich with related records;
+|CustomerApp|
+:29. Strong customer auth - execute core action;
+|PayeeAPI|
+:30. Strong customer auth - record outcome and metrics;
+|Directory|
+:31. Activation workflow - capture input context;
+|Risk|
+:32. Activation workflow - validate business constraints;
+|CustomerApp|
+:33. Activation workflow - enrich with related records;
+|PayeeAPI|
+:34. Activation workflow - execute core action;
+|Directory|
+:35. Activation workflow - record outcome and metrics;
+fork
+|PayeeAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|Directory|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|Risk|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|Risk|
+:36. Limit profile setup - capture input context;
+|CustomerApp|
+:37. Limit profile setup - validate business constraints;
+|PayeeAPI|
+:38. Limit profile setup - enrich with related records;
+|Directory|
+:39. Limit profile setup - execute core action;
+|Risk|
+:40. Limit profile setup - record outcome and metrics;
+if (Limit profile setup gate passed?) then (yes)
+  :Continue after limit profile setup;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CustomerApp|
+:41. Evidence and closure - capture input context;
+|PayeeAPI|
+:42. Evidence and closure - validate business constraints;
+|Directory|
+:43. Evidence and closure - enrich with related records;
+|Risk|
+:44. Evidence and closure - execute core action;
+|CustomerApp|
+:45. Evidence and closure - record outcome and metrics;
 stop
 @enduml

@@ -1,52 +1,139 @@
 @startuml
-title Activity 01 - Login and 2FA (risk-based authentication style)
+title Activity 01 - Login and 2FA
 start
 |CustomerApp|
-:Open login page;
-:Enter username/password;
+:1. Credential collection - capture input context;
 |AuthAPI|
-:Validate credentials;
-if (Credentials valid?) then (yes)
-  :Create AUTH_SESSION;
+:2. Credential collection - validate business constraints;
+|NotificationService|
+:3. Credential collection - enrich with related records;
+|FraudEngine|
+:4. Credential collection - execute core action;
+|CustomerApp|
+:5. Credential collection - record outcome and metrics;
+|AuthAPI|
+:6. Credential verification - capture input context;
+|NotificationService|
+:7. Credential verification - validate business constraints;
+|FraudEngine|
+:8. Credential verification - enrich with related records;
+|CustomerApp|
+:9. Credential verification - execute core action;
+|AuthAPI|
+:10. Credential verification - record outcome and metrics;
+if (Credential verification gate passed?) then (yes)
+  :Continue after credential verification;
 else (no)
-  :Show invalid credential error;
+  :Create exception task and stop flow;
+  stop
+endif
+|NotificationService|
+:11. Challenge generation - capture input context;
+|FraudEngine|
+:12. Challenge generation - validate business constraints;
+|CustomerApp|
+:13. Challenge generation - enrich with related records;
+|AuthAPI|
+:14. Challenge generation - execute core action;
+|NotificationService|
+:15. Challenge generation - record outcome and metrics;
+|FraudEngine|
+:16. Challenge verification - capture input context;
+|CustomerApp|
+:17. Challenge verification - validate business constraints;
+|AuthAPI|
+:18. Challenge verification - enrich with related records;
+|NotificationService|
+:19. Challenge verification - execute core action;
+|FraudEngine|
+:20. Challenge verification - record outcome and metrics;
+fork
+|AuthAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
+fork again
+|NotificationService|
+:Send integration notification message;
+:Capture delivery acknowledgement details;
+fork again
+|FraudEngine|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
+end fork
+|CustomerApp|
+:21. Session hardening - capture input context;
+|AuthAPI|
+:22. Session hardening - validate business constraints;
+|NotificationService|
+:23. Session hardening - enrich with related records;
+|FraudEngine|
+:24. Session hardening - execute core action;
+|CustomerApp|
+:25. Session hardening - record outcome and metrics;
+if (Session hardening gate passed?) then (yes)
+  :Continue after session hardening;
+else (no)
+  :Create exception task and stop flow;
   stop
 endif
 |AuthAPI|
-:Evaluate device trust and geolocation;
-if (Trusted device?) then (yes)
-  :Require OTP only;
-else (no)
-  :Require OTP + device challenge;
-endif
+:26. Device intelligence - capture input context;
 |NotificationService|
-:Send OTP/Push challenge;
-|CustomerApp|
-:Submit challenge response;
-|AuthAPI|
-:Verify OTP_CHALLENGE;
-if (Challenge passed?) then (yes)
-  :Issue access token;
-else (no)
-  :Increment failed attempts;
-  if (Max attempts reached?) then (yes)
-    :Lock AUTH_SESSION;
-    stop
-  else (no)
-    :Prompt retry;
-  endif
-endif
-fork
+:27. Device intelligence - validate business constraints;
 |FraudEngine|
-:Score login risk and update profile;
+:28. Device intelligence - enrich with related records;
+|CustomerApp|
+:29. Device intelligence - execute core action;
+|AuthAPI|
+:30. Device intelligence - record outcome and metrics;
+|NotificationService|
+:31. Risk scoring - capture input context;
+|FraudEngine|
+:32. Risk scoring - validate business constraints;
+|CustomerApp|
+:33. Risk scoring - enrich with related records;
+|AuthAPI|
+:34. Risk scoring - execute core action;
+|NotificationService|
+:35. Risk scoring - record outcome and metrics;
+fork
+|AuthAPI|
+:Persist transactional state changes;
+:Publish domain event for downstream services;
 fork again
 |NotificationService|
-:Send login-success alert;
+:Send integration notification message;
+:Capture delivery acknowledgement details;
 fork again
-|AuthAPI|
-:Load ACCOUNT snapshot;
+|FraudEngine|
+:Write audit/compliance evidence;
+:Refresh operational monitoring indicators;
 end fork
+|FraudEngine|
+:36. Access policy checks - capture input context;
 |CustomerApp|
-:Render dashboard;
+:37. Access policy checks - validate business constraints;
+|AuthAPI|
+:38. Access policy checks - enrich with related records;
+|NotificationService|
+:39. Access policy checks - execute core action;
+|FraudEngine|
+:40. Access policy checks - record outcome and metrics;
+if (Access policy checks gate passed?) then (yes)
+  :Continue after access policy checks;
+else (no)
+  :Create exception task and stop flow;
+  stop
+endif
+|CustomerApp|
+:41. Dashboard bootstrap - capture input context;
+|AuthAPI|
+:42. Dashboard bootstrap - validate business constraints;
+|NotificationService|
+:43. Dashboard bootstrap - enrich with related records;
+|FraudEngine|
+:44. Dashboard bootstrap - execute core action;
+|CustomerApp|
+:45. Dashboard bootstrap - record outcome and metrics;
 stop
 @enduml
