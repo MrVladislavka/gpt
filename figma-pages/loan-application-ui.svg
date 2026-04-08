@@ -1,23 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="780" viewBox="0 0 800 780">
-<rect x="0" y="0" width="800" height="780" fill="#f5f7fb"/>
-<text x="30" y="30" font-family="Inter, Arial" font-size="20" font-weight="700" fill="#1f2937">Loan Application UI</text>
-<text x="30" y="50" font-family="Inter, Arial" font-size="12" fill="#4b5563">Designed with Nielsen heuristics: visibility, consistency, error prevention, user control, recognition-over-recall.</text>
-<rect x="40" y="60" width="720" height="40" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="84" font-family="Inter, Arial" font-size="14" fill="#111827">Header: Loan Application</text>
-<rect x="40" y="120" width="720" height="45" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="144" font-family="Inter, Arial" font-size="14" fill="#111827">Stepper (Personal Info > Financials > Documents > Review)</text>
-<rect x="40" y="185" width="720" height="90" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="209" font-family="Inter, Arial" font-size="14" fill="#111827">Applicant Information Form Card</text>
-<rect x="40" y="295" width="720" height="90" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="319" font-family="Inter, Arial" font-size="14" fill="#111827">Income & Expense Form Card</text>
-<rect x="40" y="405" width="720" height="90" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="429" font-family="Inter, Arial" font-size="14" fill="#111827">Document Upload Card (with status)</text>
-<rect x="40" y="515" width="720" height="85" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="539" font-family="Inter, Arial" font-size="14" fill="#111827">Eligibility Preview + Estimated Terms Card</text>
-<rect x="40" y="620" width="720" height="55" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="644" font-family="Inter, Arial" font-size="14" fill="#111827">Primary CTA: Submit Application | Save Draft</text>
-<rect x="40" y="695" width="720" height="45" rx="10" ry="10" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="54" y="719" font-family="Inter, Arial" font-size="14" fill="#111827">Contextual Help + Error Prevention tips</text>
-<rect x="40" y="742" width="720" height="24" rx="6" fill="#e2e8f0"/>
-<text x="50" y="758" font-family="Inter, Arial" font-size="11" fill="#334155">Figma-ready wireframe (SVG import). Recommended frame size: Desktop 1440, 12-column grid.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900">
+<rect width="1280" height="900" fill="#F8FAFC"/>
+<rect x="0" y="0" width="1280" height="72" fill="#7C3AED"/>
+<text x="36" y="45" fill="#FFFFFF" font-size="26" font-family="Inter" font-weight="700">Loan Application</text>
+<rect x="70" y="120" width="1140" height="70" rx="12" fill="#FFFFFF" stroke="#D8B4FE"/>
+<text x="90" y="162" fill="#6D28D9" font-size="14" font-family="Inter">Step 1 Personal → Step 2 Financials → Step 3 Documents → Step 4 Review</text>
+<rect x="70" y="210" width="760" height="620" rx="16" fill="#FFFFFF" stroke="#CBD5E1"/>
+<text x="100" y="252" fill="#0F172A" font-size="22" font-family="Inter" font-weight="700">Application details</text>
+<rect x="100" y="275" width="700" height="52" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/><text x="118" y="307" fill="#94A3B8" font-size="14" font-family="Inter">Full Name</text>
+<rect x="100" y="342" width="340" height="52" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/><text x="118" y="374" fill="#94A3B8" font-size="14" font-family="Inter">Annual Income</text>
+<rect x="460" y="342" width="340" height="52" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/><text x="478" y="374" fill="#94A3B8" font-size="14" font-family="Inter">Employment Type</text>
+<rect x="100" y="410" width="700" height="120" rx="10" fill="#F8FAFC" stroke="#CBD5E1"/><text x="118" y="442" fill="#94A3B8" font-size="14" font-family="Inter">Upload documents</text>
+<rect x="100" y="548" width="700" height="100" rx="10" fill="#F3E8FF" stroke="#C4B5FD"/>
+<text x="118" y="580" fill="#5B21B6" font-size="14" font-family="Inter" font-weight="600">Eligibility preview</text>
+<text x="118" y="602" fill="#5B21B6" font-size="13" font-family="Inter">Estimated APR: 6.2% | Monthly Payment: £310</text>
+<rect x="100" y="680" width="210" height="52" rx="10" fill="#7C3AED"/><text x="158" y="713" fill="#FFF" font-size="16" font-family="Inter">Submit</text>
+<rect x="325" y="680" width="180" height="52" rx="10" fill="#E2E8F0"/><text x="372" y="713" fill="#1F2937" font-size="16" font-family="Inter">Save draft</text>
+<rect x="860" y="210" width="350" height="620" rx="16" fill="#FFFFFF" stroke="#CBD5E1"/>
+<text x="884" y="252" fill="#0F172A" font-size="20" font-family="Inter" font-weight="700">Guidance</text>
+<text x="884" y="282" fill="#334155" font-size="13" font-family="Inter">• Required docs checklist</text>
+<text x="884" y="304" fill="#334155" font-size="13" font-family="Inter">• Error prevention tips</text>
+<text x="884" y="326" fill="#334155" font-size="13" font-family="Inter">• Data privacy notice</text>
+<text x="70" y="870" fill="#64748B" font-size="12" font-family="Inter">HCI: progressive disclosure, visibility, error prevention, help/documentation.</text>
 </svg>
