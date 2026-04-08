@@ -1,142 +1,138 @@
 @startuml
 title Activity 02 - External Transfer
 start
-|CustomerApp|
-:1. Transfer request capture - capture input context;
-|TPS|
-:2. Transfer request capture - validate business constraints;
-|Gateway|
-:3. Transfer request capture - enrich with related records;
 |Compliance|
-:4. Transfer request capture - execute core action;
-|CustomerApp|
-:5. Transfer request capture - record outcome and metrics;
+:1. Transfer intent - capture transfer input;
 |TPS|
-:6. Beneficiary checks - capture input context;
-|Gateway|
-:7. Beneficiary checks - validate business constraints;
+:2. Transfer intent - validate account and limits;
 |Compliance|
-:8. Beneficiary checks - enrich with related records;
-|CustomerApp|
-:9. Beneficiary checks - execute core action;
+:3. Transfer intent - enrich with routing data;
 |TPS|
-:10. Beneficiary checks - record outcome and metrics;
-if (Beneficiary checks gate passed?) then (yes)
-  :Continue after beneficiary checks;
+:4. Transfer intent - execute transfer control;
+|Compliance|
+:5. Transfer intent - record transfer event;
+if (Transfer intent accepted?) then (yes)
+  :Proceed after transfer intent;
 else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
-|Gateway|
-:11. Funding controls - capture input context;
-|Compliance|
-:12. Funding controls - validate business constraints;
-|CustomerApp|
-:13. Funding controls - enrich with related records;
 |TPS|
-:14. Funding controls - execute core action;
-|Gateway|
-:15. Funding controls - record outcome and metrics;
+:6. Beneficiary due diligence - capture transfer input;
 |Compliance|
-:16. Compliance controls - capture input context;
-|CustomerApp|
-:17. Compliance controls - validate business constraints;
+:7. Beneficiary due diligence - validate account and limits;
 |TPS|
-:18. Compliance controls - enrich with related records;
-|Gateway|
-:19. Compliance controls - execute core action;
+:8. Beneficiary due diligence - enrich with routing data;
 |Compliance|
-:20. Compliance controls - record outcome and metrics;
+:9. Beneficiary due diligence - execute transfer control;
+|TPS|
+:10. Beneficiary due diligence - record transfer event;
+|Compliance|
+:11. Available-funds hold - capture transfer input;
+|TPS|
+:12. Available-funds hold - validate account and limits;
+|Compliance|
+:13. Available-funds hold - enrich with routing data;
+|TPS|
+:14. Available-funds hold - execute transfer control;
+|Compliance|
+:15. Available-funds hold - record transfer event;
+|TPS|
+:16. Regulatory screening - capture transfer input;
+|Compliance|
+:17. Regulatory screening - validate account and limits;
+|TPS|
+:18. Regulatory screening - enrich with routing data;
+|Compliance|
+:19. Regulatory screening - execute transfer control;
+|TPS|
+:20. Regulatory screening - record transfer event;
+if (Regulatory screening accepted?) then (yes)
+  :Proceed after regulatory screening;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|Compliance|
+:21. Instruction assembly - capture transfer input;
+|TPS|
+:22. Instruction assembly - validate account and limits;
+|Compliance|
+:23. Instruction assembly - enrich with routing data;
+|TPS|
+:24. Instruction assembly - execute transfer control;
+|Compliance|
+:25. Instruction assembly - record transfer event;
+|TPS|
+:26. Gateway handoff - capture transfer input;
+|Compliance|
+:27. Gateway handoff - validate account and limits;
+|TPS|
+:28. Gateway handoff - enrich with routing data;
+|Compliance|
+:29. Gateway handoff - execute transfer control;
+|TPS|
+:30. Gateway handoff - record transfer event;
 fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
 |TPS|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |Gateway|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |Compliance|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
-|CustomerApp|
-:21. Instruction packaging - capture input context;
-|TPS|
-:22. Instruction packaging - validate business constraints;
-|Gateway|
-:23. Instruction packaging - enrich with related records;
 |Compliance|
-:24. Instruction packaging - execute core action;
-|CustomerApp|
-:25. Instruction packaging - record outcome and metrics;
-if (Instruction packaging gate passed?) then (yes)
-  :Continue after instruction packaging;
-else (no)
-  :Create exception task and stop flow;
-  stop
+:31. Clearing response - capture transfer input;
+|TPS|
+:32. Clearing response - validate account and limits;
+|Compliance|
+:33. Clearing response - enrich with routing data;
+|TPS|
+:34. Clearing response - execute transfer control;
+|Compliance|
+:35. Clearing response - record transfer event;
+if (Clearing response accepted?) then (yes)
+  :Proceed after clearing response;
+else (pending)
+  :Continue settlement polling cycle;
 endif
 |TPS|
-:26. Network routing - capture input context;
-|Gateway|
-:27. Network routing - validate business constraints;
+:36. Posting and fees - capture transfer input;
 |Compliance|
-:28. Network routing - enrich with related records;
-|CustomerApp|
-:29. Network routing - execute core action;
+:37. Posting and fees - validate account and limits;
 |TPS|
-:30. Network routing - record outcome and metrics;
-|Gateway|
-:31. Settlement polling - capture input context;
+:38. Posting and fees - enrich with routing data;
 |Compliance|
-:32. Settlement polling - validate business constraints;
-|CustomerApp|
-:33. Settlement polling - enrich with related records;
+:39. Posting and fees - execute transfer control;
 |TPS|
-:34. Settlement polling - execute core action;
-|Gateway|
-:35. Settlement polling - record outcome and metrics;
+:40. Posting and fees - record transfer event;
 fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
 |TPS|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |Gateway|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |Compliance|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
-repeat
-:Re-query settlement status from network;
-repeat while (Settlement pending?) is (yes)
 |Compliance|
-:36. Failure compensation - capture input context;
-|CustomerApp|
-:37. Failure compensation - validate business constraints;
+:41. Customer closure - capture transfer input;
 |TPS|
-:38. Failure compensation - enrich with related records;
-|Gateway|
-:39. Failure compensation - execute core action;
+:42. Customer closure - validate account and limits;
 |Compliance|
-:40. Failure compensation - record outcome and metrics;
-if (Failure compensation gate passed?) then (yes)
-  :Continue after failure compensation;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|CustomerApp|
-:41. Posting and closure - capture input context;
+:43. Customer closure - enrich with routing data;
 |TPS|
-:42. Posting and closure - validate business constraints;
-|Gateway|
-:43. Posting and closure - enrich with related records;
+:44. Customer closure - execute transfer control;
 |Compliance|
-:44. Posting and closure - execute core action;
-|CustomerApp|
-:45. Posting and closure - record outcome and metrics;
+:45. Customer closure - record transfer event;
 stop
 @enduml

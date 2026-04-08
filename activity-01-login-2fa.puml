@@ -1,139 +1,126 @@
 @startuml
 title Activity 01 - Login and 2FA
 start
-|CustomerApp|
-:1. Credential collection - capture input context;
-|AuthAPI|
-:2. Credential collection - validate business constraints;
-|NotificationService|
-:3. Credential collection - enrich with related records;
 |FraudEngine|
-:4. Credential collection - execute core action;
-|CustomerApp|
-:5. Credential collection - record outcome and metrics;
+:1. Credential entry - capture credentials;
 |AuthAPI|
-:6. Credential verification - capture input context;
-|NotificationService|
-:7. Credential verification - validate business constraints;
+:2. Credential entry - hash and compare password;
 |FraudEngine|
-:8. Credential verification - enrich with related records;
-|CustomerApp|
-:9. Credential verification - execute core action;
+:3. Credential entry - construct challenge payload;
 |AuthAPI|
-:10. Credential verification - record outcome and metrics;
-if (Credential verification gate passed?) then (yes)
-  :Continue after credential verification;
+:4. Credential entry - verify submitted factor;
+|FraudEngine|
+:5. Credential entry - persist authenticated session;
+|AuthAPI|
+:6. Password authentication - capture credentials;
+|FraudEngine|
+:7. Password authentication - hash and compare password;
+|AuthAPI|
+:8. Password authentication - construct challenge payload;
+|FraudEngine|
+:9. Password authentication - verify submitted factor;
+|AuthAPI|
+:10. Password authentication - persist authenticated session;
+if (Password authentication accepted?) then (yes)
+  :Proceed after password authentication;
+else (retry)
+  :Prompt re-entry of credentials and challenge;
+  :Return to authentication context;
+endif
+|FraudEngine|
+:11. Challenge generation - capture credentials;
+|AuthAPI|
+:12. Challenge generation - hash and compare password;
+|FraudEngine|
+:13. Challenge generation - construct challenge payload;
+|AuthAPI|
+:14. Challenge generation - verify submitted factor;
+|FraudEngine|
+:15. Challenge generation - persist authenticated session;
+|AuthAPI|
+:16. OTP verification - capture credentials;
+|FraudEngine|
+:17. OTP verification - hash and compare password;
+|AuthAPI|
+:18. OTP verification - construct challenge payload;
+|FraudEngine|
+:19. OTP verification - verify submitted factor;
+|AuthAPI|
+:20. OTP verification - persist authenticated session;
+if (OTP verification accepted?) then (yes)
+  :Proceed after otp verification;
 else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
-|NotificationService|
-:11. Challenge generation - capture input context;
 |FraudEngine|
-:12. Challenge generation - validate business constraints;
-|CustomerApp|
-:13. Challenge generation - enrich with related records;
+:21. Session issuing - capture credentials;
 |AuthAPI|
-:14. Challenge generation - execute core action;
-|NotificationService|
-:15. Challenge generation - record outcome and metrics;
+:22. Session issuing - hash and compare password;
 |FraudEngine|
-:16. Challenge verification - capture input context;
-|CustomerApp|
-:17. Challenge verification - validate business constraints;
+:23. Session issuing - construct challenge payload;
 |AuthAPI|
-:18. Challenge verification - enrich with related records;
-|NotificationService|
-:19. Challenge verification - execute core action;
+:24. Session issuing - verify submitted factor;
 |FraudEngine|
-:20. Challenge verification - record outcome and metrics;
+:25. Session issuing - persist authenticated session;
 fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
 |AuthAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |NotificationService|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |FraudEngine|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
-|CustomerApp|
-:21. Session hardening - capture input context;
 |AuthAPI|
-:22. Session hardening - validate business constraints;
-|NotificationService|
-:23. Session hardening - enrich with related records;
+:26. Device trust scoring - capture credentials;
 |FraudEngine|
-:24. Session hardening - execute core action;
-|CustomerApp|
-:25. Session hardening - record outcome and metrics;
-if (Session hardening gate passed?) then (yes)
-  :Continue after session hardening;
+:27. Device trust scoring - hash and compare password;
+|AuthAPI|
+:28. Device trust scoring - construct challenge payload;
+|FraudEngine|
+:29. Device trust scoring - verify submitted factor;
+|AuthAPI|
+:30. Device trust scoring - persist authenticated session;
+|FraudEngine|
+:31. Adaptive risk checks - capture credentials;
+|AuthAPI|
+:32. Adaptive risk checks - hash and compare password;
+|FraudEngine|
+:33. Adaptive risk checks - construct challenge payload;
+|AuthAPI|
+:34. Adaptive risk checks - verify submitted factor;
+|FraudEngine|
+:35. Adaptive risk checks - persist authenticated session;
+if (Adaptive risk checks accepted?) then (yes)
+  :Proceed after adaptive risk checks;
 else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
 |AuthAPI|
-:26. Device intelligence - capture input context;
-|NotificationService|
-:27. Device intelligence - validate business constraints;
+:36. Permission hydration - capture credentials;
 |FraudEngine|
-:28. Device intelligence - enrich with related records;
-|CustomerApp|
-:29. Device intelligence - execute core action;
+:37. Permission hydration - hash and compare password;
 |AuthAPI|
-:30. Device intelligence - record outcome and metrics;
-|NotificationService|
-:31. Risk scoring - capture input context;
+:38. Permission hydration - construct challenge payload;
 |FraudEngine|
-:32. Risk scoring - validate business constraints;
-|CustomerApp|
-:33. Risk scoring - enrich with related records;
+:39. Permission hydration - verify submitted factor;
 |AuthAPI|
-:34. Risk scoring - execute core action;
-|NotificationService|
-:35. Risk scoring - record outcome and metrics;
-fork
+:40. Permission hydration - persist authenticated session;
+|FraudEngine|
+:41. Dashboard launch - capture credentials;
 |AuthAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
-fork again
-|NotificationService|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
-fork again
+:42. Dashboard launch - hash and compare password;
 |FraudEngine|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
-end fork
-|FraudEngine|
-:36. Access policy checks - capture input context;
-|CustomerApp|
-:37. Access policy checks - validate business constraints;
+:43. Dashboard launch - construct challenge payload;
 |AuthAPI|
-:38. Access policy checks - enrich with related records;
-|NotificationService|
-:39. Access policy checks - execute core action;
+:44. Dashboard launch - verify submitted factor;
 |FraudEngine|
-:40. Access policy checks - record outcome and metrics;
-if (Access policy checks gate passed?) then (yes)
-  :Continue after access policy checks;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|CustomerApp|
-:41. Dashboard bootstrap - capture input context;
-|AuthAPI|
-:42. Dashboard bootstrap - validate business constraints;
-|NotificationService|
-:43. Dashboard bootstrap - enrich with related records;
-|FraudEngine|
-:44. Dashboard bootstrap - execute core action;
-|CustomerApp|
-:45. Dashboard bootstrap - record outcome and metrics;
+:45. Dashboard launch - persist authenticated session;
 stop
 @enduml

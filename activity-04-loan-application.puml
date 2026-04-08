@@ -1,139 +1,138 @@
 @startuml
 title Activity 04 - Loan Application
 start
-|ApplicantPortal|
-:1. Application intake - capture input context;
-|LoanAPI|
-:2. Application intake - validate business constraints;
-|CreditBureau|
-:3. Application intake - enrich with related records;
 |Underwriting|
-:4. Application intake - execute core action;
-|ApplicantPortal|
-:5. Application intake - record outcome and metrics;
+:1. Application draft - capture applicant input;
 |LoanAPI|
-:6. KYC and document checks - capture input context;
-|CreditBureau|
-:7. KYC and document checks - validate business constraints;
+:2. Application draft - validate document package;
 |Underwriting|
-:8. KYC and document checks - enrich with related records;
-|ApplicantPortal|
-:9. KYC and document checks - execute core action;
+:3. Application draft - enrich with financial profile;
 |LoanAPI|
-:10. KYC and document checks - record outcome and metrics;
-if (KYC and document checks gate passed?) then (yes)
-  :Continue after kyc and document checks;
+:4. Application draft - execute eligibility logic;
+|Underwriting|
+:5. Application draft - record decision trail;
+|LoanAPI|
+:6. Identity and KYC - capture applicant input;
+|Underwriting|
+:7. Identity and KYC - validate document package;
+|LoanAPI|
+:8. Identity and KYC - enrich with financial profile;
+|Underwriting|
+:9. Identity and KYC - execute eligibility logic;
+|LoanAPI|
+:10. Identity and KYC - record decision trail;
+if (Identity and KYC accepted?) then (yes)
+  :Proceed after identity and kyc;
 else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
-|CreditBureau|
-:11. Financial profile build - capture input context;
 |Underwriting|
-:12. Financial profile build - validate business constraints;
-|ApplicantPortal|
-:13. Financial profile build - enrich with related records;
+:11. Income normalization - capture applicant input;
 |LoanAPI|
-:14. Financial profile build - execute core action;
-|CreditBureau|
-:15. Financial profile build - record outcome and metrics;
+:12. Income normalization - validate document package;
 |Underwriting|
-:16. Credit retrieval - capture input context;
-|ApplicantPortal|
-:17. Credit retrieval - validate business constraints;
+:13. Income normalization - enrich with financial profile;
 |LoanAPI|
-:18. Credit retrieval - enrich with related records;
-|CreditBureau|
-:19. Credit retrieval - execute core action;
+:14. Income normalization - execute eligibility logic;
 |Underwriting|
-:20. Credit retrieval - record outcome and metrics;
+:15. Income normalization - record decision trail;
+|LoanAPI|
+:16. Credit bureau pull - capture applicant input;
+|Underwriting|
+:17. Credit bureau pull - validate document package;
+|LoanAPI|
+:18. Credit bureau pull - enrich with financial profile;
+|Underwriting|
+:19. Credit bureau pull - execute eligibility logic;
+|LoanAPI|
+:20. Credit bureau pull - record decision trail;
+|Underwriting|
+:21. Policy pre-screen - capture applicant input;
+|LoanAPI|
+:22. Policy pre-screen - validate document package;
+|Underwriting|
+:23. Policy pre-screen - enrich with financial profile;
+|LoanAPI|
+:24. Policy pre-screen - execute eligibility logic;
+|Underwriting|
+:25. Policy pre-screen - record decision trail;
+if (Policy pre-screen accepted?) then (yes)
+  :Proceed after policy pre-screen;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|LoanAPI|
+:26. Underwriter triage - capture applicant input;
+|Underwriting|
+:27. Underwriter triage - validate document package;
+|LoanAPI|
+:28. Underwriter triage - enrich with financial profile;
+|Underwriting|
+:29. Underwriter triage - execute eligibility logic;
+|LoanAPI|
+:30. Underwriter triage - record decision trail;
+if (Underwriter triage accepted?) then (yes)
+  :Proceed after underwriter triage;
+else (conditional)
+  :Request additional collateral documents;
+endif
+|Underwriting|
+:31. Offer construction - capture applicant input;
+|LoanAPI|
+:32. Offer construction - validate document package;
+|Underwriting|
+:33. Offer construction - enrich with financial profile;
+|LoanAPI|
+:34. Offer construction - execute eligibility logic;
+|Underwriting|
+:35. Offer construction - record decision trail;
 fork
+|ApplicantPortal|
+:Update user-facing status and timeline;
+fork again
 |LoanAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |CreditBureau|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |Underwriting|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
-|ApplicantPortal|
-:21. Eligibility policy gate - capture input context;
 |LoanAPI|
-:22. Eligibility policy gate - validate business constraints;
-|CreditBureau|
-:23. Eligibility policy gate - enrich with related records;
+:36. Acceptance and booking - capture applicant input;
 |Underwriting|
-:24. Eligibility policy gate - execute core action;
-|ApplicantPortal|
-:25. Eligibility policy gate - record outcome and metrics;
-if (Eligibility policy gate gate passed?) then (yes)
-  :Continue after eligibility policy gate;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
+:37. Acceptance and booking - validate document package;
 |LoanAPI|
-:26. Underwriter assessment - capture input context;
-|CreditBureau|
-:27. Underwriter assessment - validate business constraints;
+:38. Acceptance and booking - enrich with financial profile;
 |Underwriting|
-:28. Underwriter assessment - enrich with related records;
-|ApplicantPortal|
-:29. Underwriter assessment - execute core action;
+:39. Acceptance and booking - execute eligibility logic;
 |LoanAPI|
-:30. Underwriter assessment - record outcome and metrics;
-|CreditBureau|
-:31. Offer preparation - capture input context;
+:40. Acceptance and booking - record decision trail;
 |Underwriting|
-:32. Offer preparation - validate business constraints;
-|ApplicantPortal|
-:33. Offer preparation - enrich with related records;
+:41. Servicing setup - capture applicant input;
 |LoanAPI|
-:34. Offer preparation - execute core action;
-|CreditBureau|
-:35. Offer preparation - record outcome and metrics;
+:42. Servicing setup - validate document package;
+|Underwriting|
+:43. Servicing setup - enrich with financial profile;
+|LoanAPI|
+:44. Servicing setup - execute eligibility logic;
+|Underwriting|
+:45. Servicing setup - record decision trail;
 fork
+|ApplicantPortal|
+:Update user-facing status and timeline;
+fork again
 |LoanAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |CreditBureau|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |Underwriting|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
-|Underwriting|
-:36. Acceptance and booking - capture input context;
-|ApplicantPortal|
-:37. Acceptance and booking - validate business constraints;
-|LoanAPI|
-:38. Acceptance and booking - enrich with related records;
-|CreditBureau|
-:39. Acceptance and booking - execute core action;
-|Underwriting|
-:40. Acceptance and booking - record outcome and metrics;
-if (Acceptance and booking gate passed?) then (yes)
-  :Continue after acceptance and booking;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|ApplicantPortal|
-:41. Post-booking controls - capture input context;
-|LoanAPI|
-:42. Post-booking controls - validate business constraints;
-|CreditBureau|
-:43. Post-booking controls - enrich with related records;
-|Underwriting|
-:44. Post-booking controls - execute core action;
-|ApplicantPortal|
-:45. Post-booking controls - record outcome and metrics;
 stop
 @enduml

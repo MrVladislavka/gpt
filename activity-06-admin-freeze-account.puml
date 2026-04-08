@@ -1,139 +1,125 @@
 @startuml
 title Activity 06 - Admin Freeze Account
 start
-|OpsConsole|
-:1. Freeze request intake - capture input context;
-|CoreAPI|
-:2. Freeze request intake - validate business constraints;
-|CaseMgr|
-:3. Freeze request intake - enrich with related records;
 |NotifySvc|
-:4. Freeze request intake - execute core action;
-|OpsConsole|
-:5. Freeze request intake - record outcome and metrics;
+:1. Freeze request intake - capture admin command;
 |CoreAPI|
-:6. Authority verification - capture input context;
-|CaseMgr|
-:7. Authority verification - validate business constraints;
+:2. Freeze request intake - validate entitlement policy;
 |NotifySvc|
-:8. Authority verification - enrich with related records;
-|OpsConsole|
-:9. Authority verification - execute core action;
+:3. Freeze request intake - enrich with case/account context;
 |CoreAPI|
-:10. Authority verification - record outcome and metrics;
-if (Authority verification gate passed?) then (yes)
-  :Continue after authority verification;
+:4. Freeze request intake - execute freeze governance step;
+|NotifySvc|
+:5. Freeze request intake - record governance evidence;
+if (Freeze request intake accepted?) then (yes)
+  :Proceed after freeze request intake;
 else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|CaseMgr|
-:11. Account state analysis - capture input context;
-|NotifySvc|
-:12. Account state analysis - validate business constraints;
-|OpsConsole|
-:13. Account state analysis - enrich with related records;
-|CoreAPI|
-:14. Account state analysis - execute core action;
-|CaseMgr|
-:15. Account state analysis - record outcome and metrics;
-|NotifySvc|
-:16. Case linking - capture input context;
-|OpsConsole|
-:17. Case linking - validate business constraints;
-|CoreAPI|
-:18. Case linking - enrich with related records;
-|CaseMgr|
-:19. Case linking - execute core action;
-|NotifySvc|
-:20. Case linking - record outcome and metrics;
-fork
-|CoreAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
-fork again
-|CaseMgr|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
-fork again
-|NotifySvc|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
-end fork
-|OpsConsole|
-:21. Policy decision - capture input context;
-|CoreAPI|
-:22. Policy decision - validate business constraints;
-|CaseMgr|
-:23. Policy decision - enrich with related records;
-|NotifySvc|
-:24. Policy decision - execute core action;
-|OpsConsole|
-:25. Policy decision - record outcome and metrics;
-if (Policy decision gate passed?) then (yes)
-  :Continue after policy decision;
-else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
 |CoreAPI|
-:26. Restriction execution - capture input context;
-|CaseMgr|
-:27. Restriction execution - validate business constraints;
+:6. Authorization resolution - capture admin command;
 |NotifySvc|
-:28. Restriction execution - enrich with related records;
-|OpsConsole|
-:29. Restriction execution - execute core action;
+:7. Authorization resolution - validate entitlement policy;
 |CoreAPI|
-:30. Restriction execution - record outcome and metrics;
-|CaseMgr|
-:31. Session revocation - capture input context;
+:8. Authorization resolution - enrich with case/account context;
 |NotifySvc|
-:32. Session revocation - validate business constraints;
-|OpsConsole|
-:33. Session revocation - enrich with related records;
+:9. Authorization resolution - execute freeze governance step;
 |CoreAPI|
-:34. Session revocation - execute core action;
-|CaseMgr|
-:35. Session revocation - record outcome and metrics;
+:10. Authorization resolution - record governance evidence;
+|NotifySvc|
+:11. Account status assessment - capture admin command;
+|CoreAPI|
+:12. Account status assessment - validate entitlement policy;
+|NotifySvc|
+:13. Account status assessment - enrich with case/account context;
+|CoreAPI|
+:14. Account status assessment - execute freeze governance step;
+|NotifySvc|
+:15. Account status assessment - record governance evidence;
+|CoreAPI|
+:16. Case correlation - capture admin command;
+|NotifySvc|
+:17. Case correlation - validate entitlement policy;
+|CoreAPI|
+:18. Case correlation - enrich with case/account context;
+|NotifySvc|
+:19. Case correlation - execute freeze governance step;
+|CoreAPI|
+:20. Case correlation - record governance evidence;
+|NotifySvc|
+:21. Freeze policy verdict - capture admin command;
+|CoreAPI|
+:22. Freeze policy verdict - validate entitlement policy;
+|NotifySvc|
+:23. Freeze policy verdict - enrich with case/account context;
+|CoreAPI|
+:24. Freeze policy verdict - execute freeze governance step;
+|NotifySvc|
+:25. Freeze policy verdict - record governance evidence;
+if (Freeze policy verdict accepted?) then (yes)
+  :Proceed after freeze policy verdict;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|CoreAPI|
+:26. Restriction rollout - capture admin command;
+|NotifySvc|
+:27. Restriction rollout - validate entitlement policy;
+|CoreAPI|
+:28. Restriction rollout - enrich with case/account context;
+|NotifySvc|
+:29. Restriction rollout - execute freeze governance step;
+|CoreAPI|
+:30. Restriction rollout - record governance evidence;
 fork
+|OpsConsole|
+:Update user-facing status and timeline;
+fork again
 |CoreAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |CaseMgr|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |NotifySvc|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
 |NotifySvc|
-:36. Stakeholder communication - capture input context;
-|OpsConsole|
-:37. Stakeholder communication - validate business constraints;
+:31. Session/token revocation - capture admin command;
 |CoreAPI|
-:38. Stakeholder communication - enrich with related records;
-|CaseMgr|
-:39. Stakeholder communication - execute core action;
+:32. Session/token revocation - validate entitlement policy;
 |NotifySvc|
-:40. Stakeholder communication - record outcome and metrics;
-if (Stakeholder communication gate passed?) then (yes)
-  :Continue after stakeholder communication;
-else (no)
-  :Create exception task and stop flow;
-  stop
+:33. Session/token revocation - enrich with case/account context;
+|CoreAPI|
+:34. Session/token revocation - execute freeze governance step;
+|NotifySvc|
+:35. Session/token revocation - record governance evidence;
+|CoreAPI|
+:36. Stakeholder broadcast - capture admin command;
+|NotifySvc|
+:37. Stakeholder broadcast - validate entitlement policy;
+|CoreAPI|
+:38. Stakeholder broadcast - enrich with case/account context;
+|NotifySvc|
+:39. Stakeholder broadcast - execute freeze governance step;
+|CoreAPI|
+:40. Stakeholder broadcast - record governance evidence;
+|NotifySvc|
+:41. Freeze governance closure - capture admin command;
+|CoreAPI|
+:42. Freeze governance closure - validate entitlement policy;
+|NotifySvc|
+:43. Freeze governance closure - enrich with case/account context;
+|CoreAPI|
+:44. Freeze governance closure - execute freeze governance step;
+|NotifySvc|
+:45. Freeze governance closure - record governance evidence;
+if (Freeze governance closure accepted?) then (yes)
+  :Proceed after freeze governance closure;
+else (escalate)
+  :Escalate freeze review to senior governance board;
 endif
-|OpsConsole|
-:41. Audit closeout - capture input context;
-|CoreAPI|
-:42. Audit closeout - validate business constraints;
-|CaseMgr|
-:43. Audit closeout - enrich with related records;
-|NotifySvc|
-:44. Audit closeout - execute core action;
-|OpsConsole|
-:45. Audit closeout - record outcome and metrics;
 stop
 @enduml

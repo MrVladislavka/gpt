@@ -1,139 +1,126 @@
 @startuml
 title Activity 03 - New Payee Setup
 start
-|CustomerApp|
-:1. Payee intake - capture input context;
-|PayeeAPI|
-:2. Payee intake - validate business constraints;
-|Directory|
-:3. Payee intake - enrich with related records;
 |Risk|
-:4. Payee intake - execute core action;
-|CustomerApp|
-:5. Payee intake - record outcome and metrics;
+:1. Payee draft - capture payee details;
 |PayeeAPI|
-:6. Format and duplicate checks - capture input context;
-|Directory|
-:7. Format and duplicate checks - validate business constraints;
+:2. Payee draft - validate syntactic rules;
 |Risk|
-:8. Format and duplicate checks - enrich with related records;
-|CustomerApp|
-:9. Format and duplicate checks - execute core action;
+:3. Payee draft - enrich with bank metadata;
 |PayeeAPI|
-:10. Format and duplicate checks - record outcome and metrics;
-if (Format and duplicate checks gate passed?) then (yes)
-  :Continue after format and duplicate checks;
+:4. Payee draft - execute onboarding rule;
+|Risk|
+:5. Payee draft - record onboarding state;
+|PayeeAPI|
+:6. Duplicate prevention - capture payee details;
+|Risk|
+:7. Duplicate prevention - validate syntactic rules;
+|PayeeAPI|
+:8. Duplicate prevention - enrich with bank metadata;
+|Risk|
+:9. Duplicate prevention - execute onboarding rule;
+|PayeeAPI|
+:10. Duplicate prevention - record onboarding state;
+|Risk|
+:11. Bank directory lookup - capture payee details;
+|PayeeAPI|
+:12. Bank directory lookup - validate syntactic rules;
+|Risk|
+:13. Bank directory lookup - enrich with bank metadata;
+|PayeeAPI|
+:14. Bank directory lookup - execute onboarding rule;
+|Risk|
+:15. Bank directory lookup - record onboarding state;
+if (Bank directory lookup accepted?) then (yes)
+  :Proceed after bank directory lookup;
 else (no)
-  :Create exception task and stop flow;
+  :Create exception and terminate flow;
   stop
 endif
-|Directory|
-:11. Directory resolution - capture input context;
-|Risk|
-:12. Directory resolution - validate business constraints;
-|CustomerApp|
-:13. Directory resolution - enrich with related records;
 |PayeeAPI|
-:14. Directory resolution - execute core action;
-|Directory|
-:15. Directory resolution - record outcome and metrics;
+:16. Ownership confirmation - capture payee details;
 |Risk|
-:16. Ownership assurance - capture input context;
-|CustomerApp|
-:17. Ownership assurance - validate business constraints;
+:17. Ownership confirmation - validate syntactic rules;
 |PayeeAPI|
-:18. Ownership assurance - enrich with related records;
-|Directory|
-:19. Ownership assurance - execute core action;
+:18. Ownership confirmation - enrich with bank metadata;
 |Risk|
-:20. Ownership assurance - record outcome and metrics;
+:19. Ownership confirmation - execute onboarding rule;
+|PayeeAPI|
+:20. Ownership confirmation - record onboarding state;
+|Risk|
+:21. Sanctions and risk checks - capture payee details;
+|PayeeAPI|
+:22. Sanctions and risk checks - validate syntactic rules;
+|Risk|
+:23. Sanctions and risk checks - enrich with bank metadata;
+|PayeeAPI|
+:24. Sanctions and risk checks - execute onboarding rule;
+|Risk|
+:25. Sanctions and risk checks - record onboarding state;
+if (Sanctions and risk checks accepted?) then (yes)
+  :Proceed after sanctions and risk checks;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|PayeeAPI|
+:26. Strong-customer-auth - capture payee details;
+|Risk|
+:27. Strong-customer-auth - validate syntactic rules;
+|PayeeAPI|
+:28. Strong-customer-auth - enrich with bank metadata;
+|Risk|
+:29. Strong-customer-auth - execute onboarding rule;
+|PayeeAPI|
+:30. Strong-customer-auth - record onboarding state;
+|Risk|
+:31. Payee activation - capture payee details;
+|PayeeAPI|
+:32. Payee activation - validate syntactic rules;
+|Risk|
+:33. Payee activation - enrich with bank metadata;
+|PayeeAPI|
+:34. Payee activation - execute onboarding rule;
+|Risk|
+:35. Payee activation - record onboarding state;
+if (Payee activation accepted?) then (yes)
+  :Proceed after payee activation;
+else (no)
+  :Create exception and terminate flow;
+  stop
+endif
+|PayeeAPI|
+:36. Default limit assignment - capture payee details;
+|Risk|
+:37. Default limit assignment - validate syntactic rules;
+|PayeeAPI|
+:38. Default limit assignment - enrich with bank metadata;
+|Risk|
+:39. Default limit assignment - execute onboarding rule;
+|PayeeAPI|
+:40. Default limit assignment - record onboarding state;
 fork
+|CustomerApp|
+:Update user-facing status and timeline;
+fork again
 |PayeeAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
+:Persist transactional state and domain event;
 fork again
 |Directory|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
+:Synchronize dependent services and records;
 fork again
 |Risk|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
-end fork
-|CustomerApp|
-:21. Risk control checks - capture input context;
-|PayeeAPI|
-:22. Risk control checks - validate business constraints;
-|Directory|
-:23. Risk control checks - enrich with related records;
-|Risk|
-:24. Risk control checks - execute core action;
-|CustomerApp|
-:25. Risk control checks - record outcome and metrics;
-if (Risk control checks gate passed?) then (yes)
-  :Continue after risk control checks;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|PayeeAPI|
-:26. Strong customer auth - capture input context;
-|Directory|
-:27. Strong customer auth - validate business constraints;
-|Risk|
-:28. Strong customer auth - enrich with related records;
-|CustomerApp|
-:29. Strong customer auth - execute core action;
-|PayeeAPI|
-:30. Strong customer auth - record outcome and metrics;
-|Directory|
-:31. Activation workflow - capture input context;
-|Risk|
-:32. Activation workflow - validate business constraints;
-|CustomerApp|
-:33. Activation workflow - enrich with related records;
-|PayeeAPI|
-:34. Activation workflow - execute core action;
-|Directory|
-:35. Activation workflow - record outcome and metrics;
-fork
-|PayeeAPI|
-:Persist transactional state changes;
-:Publish domain event for downstream services;
-fork again
-|Directory|
-:Send integration notification message;
-:Capture delivery acknowledgement details;
-fork again
-|Risk|
-:Write audit/compliance evidence;
-:Refresh operational monitoring indicators;
+:Write audit, compliance and monitoring outputs;
 end fork
 |Risk|
-:36. Limit profile setup - capture input context;
-|CustomerApp|
-:37. Limit profile setup - validate business constraints;
+:41. Onboarding closure - capture payee details;
 |PayeeAPI|
-:38. Limit profile setup - enrich with related records;
-|Directory|
-:39. Limit profile setup - execute core action;
+:42. Onboarding closure - validate syntactic rules;
 |Risk|
-:40. Limit profile setup - record outcome and metrics;
-if (Limit profile setup gate passed?) then (yes)
-  :Continue after limit profile setup;
-else (no)
-  :Create exception task and stop flow;
-  stop
-endif
-|CustomerApp|
-:41. Evidence and closure - capture input context;
+:43. Onboarding closure - enrich with bank metadata;
 |PayeeAPI|
-:42. Evidence and closure - validate business constraints;
-|Directory|
-:43. Evidence and closure - enrich with related records;
+:44. Onboarding closure - execute onboarding rule;
 |Risk|
-:44. Evidence and closure - execute core action;
-|CustomerApp|
-:45. Evidence and closure - record outcome and metrics;
+:45. Onboarding closure - record onboarding state;
 stop
 @enduml
